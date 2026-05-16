@@ -1,0 +1,81 @@
+Unity 3D Topic
+
+Start with a First Person Mode, and then a Third Person Mode
+
+CAMERA
+Player Cam Script
+Create the player object 
+ Player (with Rigidbody - Interpolate and Continuous, and set Freeze Rotation XYZ)
+   - PlayerObj (Mesh and Capsule Collider)
+   - Orientation (empty)
+   - CameraPos (empty) (unless shortcut)
+
+Create MoveCamera script attach to Main Camera (just follow the player)
+Drag the Main Camera inside the player
+ - There will be ways to optimize this. This is the fastest, but you also lose the camera. We'll fix later.
+Attach the PlayerCam script to Main Camera
+
+PLAYER MOVEMENT
+Create PlayerMovement script
+Attach PlayerMovement script to Player (parent)
+
+DRAG AND SPEED CONTROL
+DRAG
+Create a grounded variable
+Create OnCollisionEnter and then check if the other is tagged Ground. grounded becomes true if it is
+Create OnCollisionExit and then check if the other is tagged Ground. grounded becomes false if it is
+Create a Ground tag, and place it on the ground
+Create a trigger box under your Player (parent)
+In UPDATE, check if you're grounded. If you are, set rb.linearDamping (aka drag) to a groundDrag value. Else, set it to 0.
+
+JUMPING
+Use the existing grounded system, and then just add a space jump with an AddForce with ForceMode.Impulse
+
+
+THIRD PERSON CONTROLLER
+Create the player object 
+ Player (with Rigidbody - Interpolate and Continuous)
+   - PlayerObj (Mesh and Capsule Collider)
+   - Orientation (empty)
+
+CAMERA
+Import Cinemachine 2.10 (you can use Cinemachine 3, but I'm not familiar with it)
+
+At the + sign, create Freelook Camera
+At the script, place the Player on the Follow and LookAt slots
+Switch Orbits > Binding Mode to World Space
+(Better polish: Set FOV to 50, and then reverse the Invert Axis for Y Axis and X Axis)
+(Better polish: Orbits Spline Curviture = 0.3; TopRig: H6, R3; MiddleRig: H2, R7; BottomRig: H-1, R5)
+(Better polish: In Rigs, Turn Off All Dead Zones to 0; Middle Rig > Aim > Tracked Object Offset = 0,1,0)
+
+We'll have to then make the player look at the orientation where the CAMERA IS LOOKING
+ - will store what Forward is for player
+Also, we'll need to Rotate the player by the direction of the input (WASD)
+
+Create a script called ThirdPersonCam
+Create the variables for references
+In update...
+- Get the orientation of the camera to the player, and set it as its front
+- Get input from the player, and apply the movement based on the direction player is facing
+Attach the ThirdPersonCam script to PLAYERCAM
+
+
+MOVEMENT
+Attach the MoveCharacter script we created earlier. It will be the same as the First Person movement.
+Don't forget to include the trigger box for jumping on the player parent
+
+FIX WALL BLOCKING
+Go to the Cinemachine object (Freelook Camera), and down at Extensions, select CinemachineCollider
+ - In CinemachineCollider script, set objects camera will consider a blocker
+ - Put the Ignore Player tag, so it still looks to the player. MAKE SURE THE PLAYEROBJ IS THE ONE WITH PLAYER TAG
+ - Set Strategy to Pull Camera Forward
+
+
+For Darren
+ - convert the triggers into a raycast for grounding
+ - moving up slopes (also using raycast) - GOOD CHALLENGE FOR SKILLED STUDENTS
+   - https://www.youtube.com/watch?v=xCxSjgYTw9c&ab_channel=Dave%2FGameDevelopment
+
+
+
+
