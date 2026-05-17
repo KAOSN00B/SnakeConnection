@@ -1,21 +1,12 @@
 using UnityEngine;
 
-public class Health : MonoBehaviour
+public class Health : MonoBehaviour, IDamageable
 {
+    // Any system (GameManager, UI) can subscribe to this to handle player death
+    public static event System.Action OnPlayerDeath;
+
     [SerializeField] private int _maxHealth = 3;
     private int _currentHealth;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 
     private void Awake()
     {
@@ -26,14 +17,18 @@ public class Health : MonoBehaviour
     {
         _currentHealth -= damage;
         if (_currentHealth <= 0)
-        {
             Die();
-        }
     }
 
     public void Die()
     {
-        //Destroy the enemy game object
+        if (gameObject.CompareTag("Player"))
+        {
+            // Don't destroy the player — fire the event and let GameManager handle it
+            OnPlayerDeath?.Invoke();
+            return;
+        }
+
         Destroy(gameObject);
     }
 }

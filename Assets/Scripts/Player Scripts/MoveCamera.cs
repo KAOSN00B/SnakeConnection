@@ -9,11 +9,21 @@ public class MoveCamera : MonoBehaviour
 
     void Update()
     {
+        FollowTarget();
+        UpdateOrientation();
+    }
+
+    private void FollowTarget()
+    {
         transform.position = cameraPosition.position + offset;
         transform.rotation = Quaternion.Euler(cameraRotation);
+    }
 
+    private void UpdateOrientation()
+    {
         if (orientation != null)
         {
+            // Keep orientation horizontal so WASD aligns with screen directions
             orientation.rotation = Quaternion.Euler(0, transform.eulerAngles.y, 0);
         }
     }

@@ -21,9 +21,20 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        GatherInput();
+        AimAtMouse();
+    }
+
+    void FixedUpdate()
+    {
+        ApplyMovement();
+        ClampSpeed();
+    }
+
+    private void GatherInput()
+    {
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
-        AimAtMouse();
     }
 
     void AimAtMouse()
@@ -42,11 +53,14 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void FixedUpdate()
+    private void ApplyMovement()
     {
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
         rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
+    }
 
+    private void ClampSpeed()
+    {
         Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         if (flatVel.magnitude > moveSpeed)
         {
@@ -55,4 +69,4 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    }
+}
