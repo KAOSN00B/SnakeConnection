@@ -48,7 +48,7 @@ public class FollowerMovement : MonoBehaviour
 
         // Rotate to face the direction of travel before moving
         Vector3 moveDir = targetPos - transform.position;
-if (moveDir.sqrMagnitude > 0.001f)
+        if (moveDir.sqrMagnitude > 0.001f)
         {
             moveDir.y = 0f;
             Quaternion targetRot = Quaternion.LookRotation(moveDir);
