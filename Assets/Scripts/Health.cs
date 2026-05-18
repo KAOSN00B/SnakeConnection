@@ -22,9 +22,10 @@ public class Health : MonoBehaviour, IDamageable
 
     public void Die()
     {
+        Debug.Log($"[{gameObject.name}] Die() called");
         if (gameObject.CompareTag("Player"))
         {
-            // Don't destroy the player — fire the event and let GameManager handle it
+// Don't destroy the player — fire the event and let GameManager handle it
             OnPlayerDeath?.Invoke();
             return;
         }

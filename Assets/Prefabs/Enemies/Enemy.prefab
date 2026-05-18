@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 7455572023524628897}
   - component: {fileID: 2869009793988537621}
   - component: {fileID: 3517549194338373945}
+  - component: {fileID: 8753293810023521452}
   m_Layer: 3
   m_Name: Enemy
   m_TagString: Enemy
@@ -137,6 +138,33 @@ MonoBehaviour:
   bulletLifetime: 3
   _firePoint: {fileID: 7531591467440797665}
   _bulletPrefab: {fileID: 4642965890253812081, guid: 6ffdb1843ae09204bb0efa2b1b7368f7, type: 3}
+--- !u!54 &8753293810023521452
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 431794436460035563}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 112
+  m_CollisionDetection: 0
 --- !u!1 &8966266500992188255
 GameObject:
   m_ObjectHideFlags: 0
@@ -148,7 +176,7 @@ GameObject:
   - component: {fileID: 4162513348733195874}
   - component: {fileID: 3460551730497161965}
   - component: {fileID: 4084640559920188743}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Visuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -203,7 +231,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 385a9402d381d6e428dabbb4ce097388, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

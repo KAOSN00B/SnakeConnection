@@ -43,9 +43,12 @@ public class FollowerMovement : MonoBehaviour
 
     private void FaceMovementDirection(Vector3 targetPos)
     {
+        // Don't rotate to face movement if we have an enemy target
+        if (TryGetComponent<FolloweAttack>(out var attack) && attack.HasTarget) return;
+
         // Rotate to face the direction of travel before moving
         Vector3 moveDir = targetPos - transform.position;
-        if (moveDir.sqrMagnitude > 0.001f)
+if (moveDir.sqrMagnitude > 0.001f)
         {
             moveDir.y = 0f;
             Quaternion targetRot = Quaternion.LookRotation(moveDir);

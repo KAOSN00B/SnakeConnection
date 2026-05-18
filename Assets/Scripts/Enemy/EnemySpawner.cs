@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
     [SerializeField] private GameObject _enemyPrefab;
+    [SerializeField] private Transform[] _spawnPoints;
 
     void Start()
     {
@@ -17,7 +19,12 @@ public class EnemySpawner : MonoBehaviour
 
     private void SpawnEnemy()
     {
-        Instantiate(_enemyPrefab, transform.position, Quaternion.identity);
+        
+        for (int i = 0; i < _spawnPoints.Length; i++)
+        {
+            Transform spawnPoint = _spawnPoints[i];
+            Instantiate(_enemyPrefab, spawnPoint.position, Quaternion.identity);
+        }
     }
 
 }

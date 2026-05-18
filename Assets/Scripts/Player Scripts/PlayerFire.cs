@@ -37,6 +37,12 @@ public class PlayerFire : MonoBehaviour
 
         GameObject bullet = Instantiate(_bulletPrefab, spawnPos, spawnRot);
 
+        Bullet bulletScript = bullet.GetComponent<Bullet>();
+        if (bulletScript != null)
+        {
+            bulletScript.SetOwner(gameObject);
+        }
+
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
 
         if (rb != null)

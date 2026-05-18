@@ -10,8 +10,16 @@ public class EnemyMovement : MonoBehaviour
     private Transform _target;
     private float _nextAttackTime;
     private Vector3 _directionToTarget;
+    private Rigidbody _rb;
+    private float _lastTargetLog;
 
     void Start()
+    {
+        _rb = GetComponent<Rigidbody>();
+        FindPlayer();
+    }
+
+    private void FindPlayer()
     {
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null)
@@ -21,54 +29,86 @@ public class EnemyMovement : MonoBehaviour
     void Update()
     {
         UpdateTarget();
-        if (_target == null) return;
+        
+        if (_target == null) 
+        {
+            _directionToTarget = Vector3.zero;
+            return;
+        }
 
-        _directionToTarget = (_target.position - transform.position).normalized;
-        MoveTowardTarget();
+        Vector3 flat = _target.position - transform.position;
+        flat.y = 0f;
+        if (flat.sqrMagnitude > 0.01f)
+            _directionToTarget = flat.normalized;
+        else
+            _directionToTarget = Vector3.zero;
+
         FaceTarget();
+        
+        if (Time.time > _lastTargetLog + 5f)
+        {
+            Debug.Log($"[{gameObject.name}] Chasing: " + (_target != null ? _target.name : "NULL"));
+            _lastTargetLog = Time.time;
+        }
+    }
+
+    void FixedUpdate()
+    {
+        MoveTowardTarget();
     }
 
     private void UpdateTarget()
     {
-        // Chase the nearest follower if any exist, otherwise go for the player
+        if (_playerTransform == null) FindPlayer();
+
+        Transform nearestFollower = null;
         if (ChainManager.Instance != null && ChainManager.Instance.HasFollowers)
-            _target = ChainManager.Instance.GetNearestFollower(transform.position);
+        {
+            nearestFollower = ChainManager.Instance.GetNearestFollower(transform.position);
+        }
+
+        if (nearestFollower != null)
+            _target = nearestFollower;
         else
             _target = _playerTransform;
     }
 
     private void MoveTowardTarget()
     {
-        transform.position += _directionToTarget * _speed * Time.deltaTime;
+        if (_directionToTarget == Vector3.zero && (_rb == null || _rb.isKinematic)) return;
+
+        if (_rb != null)
+        {
+            if (_rb.isKinematic)
+            {
+                transform.position += _directionToTarget * _speed * Time.fixedDeltaTime;
+            }
+            else
+            {
+                Vector3 vel = _directionToTarget * _speed;
+                vel.y = _rb.linearVelocity.y;
+                _rb.linearVelocity = vel;
+            }
+        }
+        else
+        {
+            transform.position += _directionToTarget * _speed * Time.fixedDeltaTime;
+        }
     }
 
     private void FaceTarget()
     {
-        // Rotate to face the target on the Y axis
-        Vector3 flatDir = _directionToTarget;
-        flatDir.y = 0f;
-        if (flatDir != Vector3.zero)
-            transform.rotation = Quaternion.LookRotation(flatDir);
+        if (_directionToTarget != Vector3.zero)
+            transform.rotation = Quaternion.LookRotation(_directionToTarget);
     }
 
-    private void OnCollisionStay(Collision collision)
-    {
-        ProcessContact(collision.gameObject);
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        ProcessContact(other.gameObject);
-    }
+    private void OnCollisionStay(Collision collision) { ProcessContact(collision.gameObject); }
+    private void OnTriggerStay(Collider other) { ProcessContact(other.gameObject); }
 
     private void ProcessContact(GameObject target)
     {
-        // Damage both the player and followers on contact
-        if (!target.CompareTag("Player") && !target.CompareTag("Follower"))
-            return;
-
-        if (Time.time < _nextAttackTime)
-            return;
+        if (!target.CompareTag("Player") && !target.CompareTag("Follower")) return;
+        if (Time.time < _nextAttackTime) return;
 
         IDamageable damageable = target.GetComponent<IDamageable>();
         if (damageable != null)
@@ -77,4 +117,4 @@ public class EnemyMovement : MonoBehaviour
             _nextAttackTime = Time.time + _attackCooldown;
         }
     }
-    }
+}

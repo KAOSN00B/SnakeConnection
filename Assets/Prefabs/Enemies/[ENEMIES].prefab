@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5962798055307087550}
   m_Layer: 3
   m_Name: '[ENEMIES]'
-  m_TagString: Enemy
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -83,14 +83,6 @@ PrefabInstance:
     - target: {fileID: 3260102674357125799, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4084640559920188743, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 385a9402d381d6e428dabbb4ce097388, type: 2}
-    - target: {fileID: 8966266500992188255, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
-      propertyPath: m_Layer
-      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
