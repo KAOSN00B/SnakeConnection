@@ -6,9 +6,15 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField] private int _damage = 1;
     [SerializeField] private float _attackCooldown = 1f;
 
+    [SerializeField] private float _targetRefreshInterval = 0.2f;
+
     private Transform _playerTransform;
     private Transform _target;
     private float _nextAttackTime;
+    private float _targetRefreshTimer;
+
+    private void OnEnable()  => EnemyRegistry.Register(transform);
+    private void OnDisable() => EnemyRegistry.Unregister(transform);
 
     private void Start()
     {
@@ -22,14 +28,19 @@ public class EnemyMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // Re-find player if lost (e.g. scene reload edge case)
         if (_playerTransform == null)
         {
             GameObject player = GameObject.FindWithTag("Player");
             if (player != null) _playerTransform = player.transform;
         }
 
-        UpdateTarget();
+        // Refresh target on a timer instead of every tick — saves a full follower list walk
+        _targetRefreshTimer -= Time.fixedDeltaTime;
+        if (_targetRefreshTimer <= 0f)
+        {
+            UpdateTarget();
+            _targetRefreshTimer = _targetRefreshInterval;
+        }
         if (_target == null) return;
 
         // Compute direction fresh every physics tick — no dependency on Update having run first

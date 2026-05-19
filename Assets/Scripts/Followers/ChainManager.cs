@@ -77,7 +77,7 @@ public class ChainManager : MonoBehaviour
     private void RecordPosition()
     {
         // Record a new position only when the player has moved far enough from the last point
-        if (Vector3.Distance(_posHistory[0], _playerTransform.position) >= _recordDistance)
+        if ((_posHistory[0] - _playerTransform.position).sqrMagnitude >= _recordDistance * _recordDistance)
         {
             _posHistory.Insert(0, _playerTransform.position);
 
@@ -90,6 +90,7 @@ public class ChainManager : MonoBehaviour
 
     public bool HasFollowers  => _followers.Count > 0;
     public int  FollowerCount => _followers.Count;
+
 
     // Called by FollowerPickup when a new follower is collected
     public void AddFollower(FollowerMovement follower)
@@ -117,16 +118,12 @@ public class ChainManager : MonoBehaviour
     public Transform GetNearestFollower(Vector3 fromPosition)
     {
         Transform nearest = null;
-        float nearestDist = float.MaxValue;
+        float nearestSq = float.MaxValue;
 
         foreach (FollowerMovement follower in _followers)
         {
-            float dist = Vector3.Distance(fromPosition, follower.transform.position);
-            if (dist < nearestDist)
-            {
-                nearestDist = dist;
-                nearest = follower.transform;
-            }
+            float sq = (fromPosition - follower.transform.position).sqrMagnitude;
+            if (sq < nearestSq) { nearestSq = sq; nearest = follower.transform; }
         }
 
         return nearest;

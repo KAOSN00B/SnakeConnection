@@ -4,16 +4,22 @@ public class FollowerMovement : MonoBehaviour
 {
     [SerializeField] private float _rotationSpeed = 10f;
 
+    // Index into the position history — set by ChainManager on spawn
+    private int _historyIndex;
+
+    // Cached once in Awake — avoids TryGetComponent every FixedUpdate
+    private FolloweAttack _attack;
+
+    private void Awake()
+    {
+        _attack = GetComponent<FolloweAttack>();
+    }
+
     private void Start()
     {
         if (ChainManager.Instance != null)
-        {
             ChainManager.Instance.AddFollower(this);
-        }
     }
-
-    // Index into the position history — set by ChainManager on spawn
-    private int _historyIndex;
 
     // Called by ChainManager immediately after the follower is registered
     public void Init(int chainIndex, int pointsPerFollower)
@@ -44,7 +50,7 @@ public class FollowerMovement : MonoBehaviour
     private void FaceMovementDirection(Vector3 targetPos)
     {
         // Don't rotate to face movement if we have an enemy target
-        if (TryGetComponent<FolloweAttack>(out var attack) && attack.HasTarget) return;
+        if (_attack != null && _attack.HasTarget) return;
 
         // Rotate to face the direction of travel before moving
         Vector3 moveDir = targetPos - transform.position;

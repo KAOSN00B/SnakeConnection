@@ -644,7 +644,7 @@ MonoBehaviour:
   _enemyPrefabs:
   - {fileID: 4528111219015725795, guid: 1c57467e479b215498bc1f0a929e841c, type: 3}
   _minSpawnRadius: 4.75
-  _maxSpawnRadius: 21
+  _maxSpawnRadius: 6.3
   _spawnInterval: 3
   _minimumSpawnInterval: 0.5
   _spawnIntervalDecreaseRate: 0.05
@@ -912,19 +912,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8931332161009562694, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
       propertyPath: m_Positions.Array.data[0].x
-      value: 0.53162
+      value: 1.1716199
       objectReference: {fileID: 0}
     - target: {fileID: 8931332161009562694, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
       propertyPath: m_Positions.Array.data[0].z
-      value: 4.33726
+      value: 4.33326
       objectReference: {fileID: 0}
     - target: {fileID: 8931332161009562694, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
       propertyPath: m_Positions.Array.data[1].x
-      value: -7.468381
+      value: -6.828381
       objectReference: {fileID: 0}
     - target: {fileID: 8931332161009562694, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
       propertyPath: m_Positions.Array.data[1].z
-      value: 4.337259
+      value: 4.333259
       objectReference: {fileID: 0}
     - target: {fileID: 9048298293251724746, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
       propertyPath: _excludeLayers.m_Bits

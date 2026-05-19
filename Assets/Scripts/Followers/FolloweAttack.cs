@@ -6,12 +6,14 @@ public class FolloweAttack : MonoBehaviour
     [SerializeField] private float _fireRate = 1f;
     [SerializeField] private float _bulletSpeed = 20f;
     [SerializeField] private float _bulletLifetime = 3f;
+    [SerializeField] private float _targetRefreshInterval = 0.2f;
 
     [SerializeField] private Transform _firePoint;
     [SerializeField] private GameObject _bulletPrefab;
 
     private Transform _enemyTarget;
     private float _fireCooldown;
+    private float _targetRefreshTimer;
 
     public bool HasTarget => _enemyTarget != null;
 
@@ -22,7 +24,14 @@ public class FolloweAttack : MonoBehaviour
 
     void Update()
     {
-        FindNearestTarget();
+        // Refresh target on a timer — EnemyRegistry walk is cheap but no need to do it every frame
+        _targetRefreshTimer -= Time.deltaTime;
+        if (_targetRefreshTimer <= 0f)
+        {
+            FindNearestTarget();
+            _targetRefreshTimer = _targetRefreshInterval;
+        }
+
         if (_enemyTarget != null)
         {
             FaceTarget();
@@ -43,30 +52,11 @@ public class FolloweAttack : MonoBehaviour
 
     private void FindNearestTarget()
     {
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        // EnemyRegistry replaces FindGameObjectsWithTag — no allocation, no scene scan
+        float rangeSq = _attackRange * _attackRange;
+        Transform nearest = EnemyRegistry.GetNearest(transform.position, rangeSq);
 
-        float shortestDistance = Mathf.Infinity;
-        GameObject nearestEnemy = null;
-
-        foreach (GameObject enemy in enemies)
-        {
-            float distanceToEnemy = Vector3.Distance(transform.position, enemy.transform.position);
-
-            if (distanceToEnemy < shortestDistance)
-            {
-                shortestDistance = distanceToEnemy;
-                nearestEnemy = enemy;
-            }
-        }
-
-        if (nearestEnemy != null && shortestDistance <= _attackRange)
-        {
-            _enemyTarget = nearestEnemy.transform;
-        }
-        else
-        {
-            _enemyTarget = null;
-        }
+        _enemyTarget = nearest; // null if nothing in range
     }
 
     private void HandleFiring()
@@ -83,37 +73,27 @@ public class FolloweAttack : MonoBehaviour
     {
         if (_bulletPrefab == null || _enemyTarget == null) return;
 
-        // Aim at the center of the enemy's collider for much better accuracy
         Vector3 targetPos = _enemyTarget.position;
         if (_enemyTarget.TryGetComponent<Collider>(out var col))
-        {
             targetPos = col.bounds.center;
-        }
         else
-        {
-            targetPos += Vector3.up * 1f; // Fallback: aim 1 unit up from feet
-        }
+            targetPos += Vector3.up * 1f;
 
-        // Use FirePoint if assigned, otherwise use transform position with a small offset
-        Vector3 spawnPos = _firePoint != null ? _firePoint.position : (transform.position + transform.forward * 0.5f + Vector3.up * 0.8f);
-        
-        // Calculate direction to target center
+        Vector3 spawnPos = _firePoint != null
+            ? _firePoint.position
+            : (transform.position + transform.forward * 0.5f + Vector3.up * 0.8f);
+
         Vector3 fireDir = (targetPos - spawnPos).normalized;
         if (fireDir == Vector3.zero) fireDir = transform.forward;
 
-        // Instantiate bullet looking toward the target
-        GameObject bullet = Instantiate(_bulletPrefab, spawnPos, Quaternion.LookRotation(fireDir));
-        
-        Bullet bScript = bullet.GetComponent<Bullet>();
-        if (bScript != null) bScript.SetOwner(gameObject);
-
-        Rigidbody rb = bullet.GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.linearVelocity = fireDir * _bulletSpeed;
-        }
-
-        Destroy(bullet, _bulletLifetime);
+        BulletPool.Instance.Get(
+            _bulletPrefab,
+            spawnPos,
+            Quaternion.LookRotation(fireDir),
+            fireDir * _bulletSpeed,
+            _bulletLifetime,
+            gameObject
+        );
     }
 
     private void OnDrawGizmosSelected()

@@ -28,27 +28,18 @@ public class PlayerFire : MonoBehaviour
 
     private void Fire()
     {
-        // Use firePoint if assigned, otherwise fallback to player position
         Vector3 spawnPos = _firePoint != null ? _firePoint.position : transform.position;
         Quaternion spawnRot = _firePoint != null ? _firePoint.rotation : transform.rotation;
+        Vector3 fireDir = GetFireDirection();
 
-        GameObject bullet = Instantiate(_bulletPrefab, spawnPos, spawnRot);
-
-        Bullet bulletScript = bullet.GetComponent<Bullet>();
-        if (bulletScript != null)
-        {
-            bulletScript.SetOwner(gameObject);
-        }
-
-        Rigidbody rb = bullet.GetComponent<Rigidbody>();
-
-        if (rb != null)
-        {
-            Vector3 fireDir = GetFireDirection();
-            rb.linearVelocity = fireDir * _bulletSpeed;
-        }
-
-        Destroy(bullet, _bulletLifetime);
+        BulletPool.Instance.Get(
+            _bulletPrefab,
+            spawnPos,
+            spawnRot,
+            fireDir * _bulletSpeed,
+            _bulletLifetime,
+            gameObject
+        );
     }
 
     private Vector3 GetFireDirection()
@@ -61,6 +52,4 @@ public class PlayerFire : MonoBehaviour
         dir.y = 0f;
         return dir.normalized;
     }
-
-
 }

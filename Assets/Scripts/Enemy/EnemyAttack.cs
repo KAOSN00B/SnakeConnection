@@ -6,43 +6,56 @@ public class EnemyAttack : MonoBehaviour
     [SerializeField] private float fireRate = 1f;
     [SerializeField] private float bulletSpeed = 12f;
     [SerializeField] private float bulletLifetime = 3f;
+    [SerializeField] private float _targetRefreshInterval = 0.2f;
 
     [SerializeField] private Transform _firePoint;
     [SerializeField] private GameObject _bulletPrefab;
 
+    // Static buffer shared across all EnemyAttack instances — NonAlloc writes into this
+    private static readonly Collider[] _overlapBuffer = new Collider[32];
+
     private Transform _target;
     private float _fireCooldown;
+    private float _targetRefreshTimer;
 
     void Start()
     {
-        // Start cooldown full so the enemy doesn't fire the instant a target enters range
         _fireCooldown = 1f / fireRate;
     }
 
     void Update()
     {
-        FindNearestTarget();
+        _targetRefreshTimer -= Time.deltaTime;
+        if (_targetRefreshTimer <= 0f)
+        {
+            FindNearestTarget();
+            _targetRefreshTimer = _targetRefreshInterval;
+        }
+
         if (_target == null) return;
         FaceTarget();
         HandleFiring();
     }
 
-    // Finds the nearest player or follower within attackRange using tags
     private void FindNearestTarget()
     {
-        Collider[] hits = Physics.OverlapSphere(transform.position, attackRange);
+        // NonAlloc: writes into the shared buffer instead of allocating a new array each call
+        int count = Physics.OverlapSphereNonAlloc(transform.position, attackRange, _overlapBuffer);
 
         Transform nearest = null;
-        float nearestDist = float.MaxValue;
+        float nearestSq = float.MaxValue;
+        float rangeSq = attackRange * attackRange;
 
-        foreach (Collider hit in hits)
+        for (int i = 0; i < count; i++)
         {
+            Collider hit = _overlapBuffer[i];
             if (!hit.CompareTag("Player") && !hit.CompareTag("Follower")) continue;
 
-            float dist = Vector3.Distance(transform.position, hit.transform.position);
-            if (dist < nearestDist)
+            // Squared distance — avoids a sqrt per candidate
+            float sq = (transform.position - hit.transform.position).sqrMagnitude;
+            if (sq < nearestSq && sq <= rangeSq)
             {
-                nearestDist = dist;
+                nearestSq = sq;
                 nearest = hit.transform;
             }
         }
@@ -53,9 +66,7 @@ public class EnemyAttack : MonoBehaviour
     private void FaceTarget()
     {
         Vector3 dir = _target.position - transform.position;
-        // Flatten to XZ so the enemy doesn't tilt up/down toward the target
         dir.y = 0f;
-        // LookRotation aligns the Z axis (forward) toward dir
         if (dir != Vector3.zero)
             transform.rotation = Quaternion.LookRotation(dir);
     }
@@ -66,7 +77,6 @@ public class EnemyAttack : MonoBehaviour
         if (_fireCooldown <= 0f)
         {
             Shoot();
-            // Reset cooldown — 1 / fireRate gives seconds between shots (e.g. fireRate 2 = 0.5s gap)
             _fireCooldown = 1f / fireRate;
         }
     }
@@ -75,21 +85,18 @@ public class EnemyAttack : MonoBehaviour
     {
         if (_firePoint == null || _bulletPrefab == null) return;
 
-        // Spawn bullet at the fire point's position and rotation
-        GameObject bullet = Instantiate(_bulletPrefab, _firePoint.position, _firePoint.rotation);
-
-        // Push the bullet forward along the fire point's Z axis
-        Rigidbody rb = bullet.GetComponent<Rigidbody>();
-        if (rb != null)
-            rb.linearVelocity = _firePoint.forward * bulletSpeed;
-
-        // Auto-destroy so bullets don't accumulate in the scene forever
-        Destroy(bullet, bulletLifetime);
+        // No owner passed — enemy bullets must be able to hit Player and Follower
+        BulletPool.Instance.Get(
+            _bulletPrefab,
+            _firePoint.position,
+            _firePoint.rotation,
+            _firePoint.forward * bulletSpeed,
+            bulletLifetime
+        );
     }
 
     private void OnDrawGizmosSelected()
     {
-        // Visualize attack range in the editor when this object is selected
         Gizmos.color = Color.red;
         Vector3 center = _firePoint != null ? _firePoint.position : transform.position;
         Gizmos.DrawWireSphere(center, attackRange);

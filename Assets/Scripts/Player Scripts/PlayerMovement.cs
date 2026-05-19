@@ -19,11 +19,13 @@ public class PlayerMovement : MonoBehaviour
 
     // Cached Rigidbody — grabbed once in Awake so we don't call GetComponent every frame
     private Rigidbody _rb;
+    // Camera.main does a FindObjectByTag scan every call; cache it once
+    private Camera _mainCamera;
 
     private void Awake()
     {
-        // Cache the Rigidbody on the same GameObject this script is attached to
         _rb = GetComponent<Rigidbody>();
+        _mainCamera = Camera.main;
     }
 
     void Start()
@@ -78,7 +80,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void AimAtMouse()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
         Plane groundPlane = new Plane(Vector3.up, transform.position);
 
         if (groundPlane.Raycast(ray, out float distance))

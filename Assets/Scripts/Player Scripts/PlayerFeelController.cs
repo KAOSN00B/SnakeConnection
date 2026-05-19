@@ -168,11 +168,11 @@ public class PlayerFeelController : MonoBehaviour
     private float   _currentTiltZ;      // Current Z-axis lean angle (smoothed)
 
     // Trail state
-    private LineRenderer      _trail;
-    private Queue<Vector3>    _trailQueue     = new Queue<Vector3>();
-    private float             _trailTimer;
-    // The gradient is built once and reused — creating it every frame would generate garbage
-    private Gradient          _cachedGradient;
+    private LineRenderer   _trail;
+    private Queue<Vector3> _trailQueue    = new Queue<Vector3>();
+    private Vector3[]      _trailBuffer;  // pre-allocated; CopyTo into this avoids ToArray() allocation
+    private float          _trailTimer;
+    private Gradient       _cachedGradient;
 
     // Post-processing state
     private ChromaticAberration _chromatic;
@@ -307,6 +307,10 @@ public class PlayerFeelController : MonoBehaviour
             }
         );
         _trail.colorGradient = _cachedGradient;
+
+        // Pre-allocate the position buffer to the maximum trail length.
+        // CopyTo() into this buffer avoids the per-frame allocation that ToArray() causes.
+        _trailBuffer = new Vector3[_trailLength];
     }
 
     // =====================================================================
@@ -459,14 +463,13 @@ public class PlayerFeelController : MonoBehaviour
                 _trailQueue.Dequeue();
         }
 
-        // Write the queue to the line renderer.
-        // Queue ordering: oldest at front → newest at back.
-        // LineRenderer draws index 0 first — so oldest = index 0 = tail (transparent end).
-        // This matches our gradient: alpha 0 at position 0, full alpha at position 1. Correct.
-        var positions = _trailQueue.ToArray();
-        _trail.positionCount = positions.Length;
-        if (positions.Length > 0)
-            _trail.SetPositions(positions);
+        // CopyTo writes queue elements (oldest→newest) into the pre-allocated buffer.
+        // This avoids the heap allocation that ToArray() causes every frame.
+        int count = _trailQueue.Count;
+        _trailQueue.CopyTo(_trailBuffer, 0);
+        _trail.positionCount = count;
+        if (count > 0)
+            _trail.SetPositions(_trailBuffer); // LineRenderer only reads up to positionCount elements
     }
 
     // =====================================================================

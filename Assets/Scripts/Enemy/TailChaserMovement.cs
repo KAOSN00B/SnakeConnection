@@ -9,10 +9,16 @@ public class TailChaserMovement : MonoBehaviour
     [SerializeField] private int _damage = 1;
     [SerializeField] private float _attackCooldown = 1f;
 
+    [SerializeField] private float _targetRefreshInterval = 0.2f;
+
     private Transform _playerTransform;
     private Transform _target;
     private float _nextAttackTime;
     private Vector3 _directionToTarget;
+    private float _targetRefreshTimer;
+
+    private void OnEnable()  => EnemyRegistry.Register(transform);
+    private void OnDisable() => EnemyRegistry.Unregister(transform);
 
     private void Start()
     {
@@ -22,7 +28,12 @@ public class TailChaserMovement : MonoBehaviour
 
     private void Update()
     {
-        UpdateTarget();
+        _targetRefreshTimer -= Time.deltaTime;
+        if (_targetRefreshTimer <= 0f)
+        {
+            UpdateTarget();
+            _targetRefreshTimer = _targetRefreshInterval;
+        }
         if (_target == null) return;
 
         Vector3 flat = _target.position - transform.position;

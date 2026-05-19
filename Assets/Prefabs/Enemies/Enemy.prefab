@@ -45,6 +45,7 @@ GameObject:
   - component: {fileID: 2869009793988537621}
   - component: {fileID: 3517549194338373945}
   - component: {fileID: 8753293810023521452}
+  - component: {fileID: -6945759822756247116}
   m_Layer: 3
   m_Name: Enemy
   m_TagString: Enemy
@@ -107,6 +108,7 @@ MonoBehaviour:
   _speed: 2
   _damage: 1
   _attackCooldown: 1
+  _targetRefreshInterval: 0.2
 --- !u!114 &2869009793988537621
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,6 +138,7 @@ MonoBehaviour:
   fireRate: 1
   bulletSpeed: 12
   bulletLifetime: 3
+  _targetRefreshInterval: 0.2
   _firePoint: {fileID: 7531591467440797665}
   _bulletPrefab: {fileID: 4642965890253812081, guid: 6ffdb1843ae09204bb0efa2b1b7368f7, type: 3}
 --- !u!54 &8753293810023521452
@@ -165,6 +168,19 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!114 &-6945759822756247116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 431794436460035563}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a665d3519bd8374e98187457890968d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitFlash
+  _flashDuration: 0.1
 --- !u!1 &8966266500992188255
 GameObject:
   m_ObjectHideFlags: 0
