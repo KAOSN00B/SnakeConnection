@@ -5,9 +5,12 @@ public class EnemySpawner : MonoBehaviour
     [Header("Enemy Types")]
     [SerializeField] private GameObject[] _enemyPrefabs;
 
-    [Header("Spawn Ring")]
-    [SerializeField] private float _minSpawnRadius = 15f;
-    [SerializeField] private float _maxSpawnRadius = 25f;
+    [Header("Spawn Square")]
+    [SerializeField] private float _spawnHalfX = 15f;   // east / west walls
+    [SerializeField] private float _spawnHalfZ = 15f;   // north / south walls
+
+    [Header("Debug")]
+    [SerializeField] private bool _debugSpawns = true;
 
     [Header("Spawn Timing")]
     [SerializeField] private float _spawnInterval = 3f;
@@ -58,7 +61,7 @@ public class EnemySpawner : MonoBehaviour
         int maxEnemyIndex = GetHighestUnlockedEnemyIndex();
         int randomEnemyIndex = Random.Range(0, maxEnemyIndex + 1);
 
-        Instantiate(_enemyPrefabs[randomEnemyIndex], GetSpawnRingPosition(), Quaternion.identity);
+        Instantiate(_enemyPrefabs[randomEnemyIndex], GetSpawnPosition(), Quaternion.identity);
     }
 
     private int GetHighestUnlockedEnemyIndex()
@@ -68,40 +71,42 @@ public class EnemySpawner : MonoBehaviour
         return 0;
     }
 
-    private Vector3 GetSpawnRingPosition()
+    private Vector3 GetSpawnPosition()
     {
-        // Spawn relative to player so pressure is always present regardless of where they've moved
-        Vector3 center = _playerTransform != null ? _playerTransform.position : transform.position;
+        // Fixed square centered on the spawner — place the spawner at the map center.
+        Vector3 center = transform.position;
 
-        float angle = Random.Range(0f, Mathf.PI * 2f);
-        float radius = Random.Range(_minSpawnRadius, _maxSpawnRadius);
+        int side = Random.Range(0, 4);
 
-        return new Vector3(
-            center.x + Mathf.Cos(angle) * radius,
-            transform.position.y,
-            center.z + Mathf.Sin(angle) * radius
-        );
+        float x, z;
+        string sideName;
+        switch (side)
+        {
+            case 0:  x = Random.Range(-_spawnHalfX, _spawnHalfX); z =  _spawnHalfZ; sideName = "North"; break;
+            case 1:  x = Random.Range(-_spawnHalfX, _spawnHalfX); z = -_spawnHalfZ; sideName = "South"; break;
+            case 2:  x = -_spawnHalfX; z = Random.Range(-_spawnHalfZ, _spawnHalfZ); sideName = "West";  break;
+            default: x =  _spawnHalfX; z = Random.Range(-_spawnHalfZ, _spawnHalfZ); sideName = "East";  break;
+        }
+
+        Vector3 spawnPos = new Vector3(center.x + x, transform.position.y, center.z + z);
+
+        if (_debugSpawns)
+            Debug.Log($"[EnemySpawner] Center: {center} | Side: {sideName} | SpawnPos: {spawnPos}");
+
+        return spawnPos;
     }
 
     private void OnDrawGizmosSelected()
     {
-        // Draw inner and outer spawn ring so you can visualize the spawn band in the editor
         Gizmos.color = Color.yellow;
-        DrawGizmoRing(_minSpawnRadius);
-        Gizmos.color = Color.red;
-        DrawGizmoRing(_maxSpawnRadius);
-    }
-
-    private void DrawGizmoRing(float radius)
-    {
-        int segments = 32;
-        for (int i = 0; i < segments; i++)
-        {
-            float a1 = (i / (float)segments) * Mathf.PI * 2f;
-            float a2 = ((i + 1) / (float)segments) * Mathf.PI * 2f;
-            Vector3 p1 = transform.position + new Vector3(Mathf.Cos(a1) * radius, 0f, Mathf.Sin(a1) * radius);
-            Vector3 p2 = transform.position + new Vector3(Mathf.Cos(a2) * radius, 0f, Mathf.Sin(a2) * radius);
-            Gizmos.DrawLine(p1, p2);
-        }
+        Vector3 o = transform.position;
+        Vector3 tl = o + new Vector3(-_spawnHalfX, 0f,  _spawnHalfZ);
+        Vector3 tr = o + new Vector3( _spawnHalfX, 0f,  _spawnHalfZ);
+        Vector3 br = o + new Vector3( _spawnHalfX, 0f, -_spawnHalfZ);
+        Vector3 bl = o + new Vector3(-_spawnHalfX, 0f, -_spawnHalfZ);
+        Gizmos.DrawLine(tl, tr);
+        Gizmos.DrawLine(tr, br);
+        Gizmos.DrawLine(br, bl);
+        Gizmos.DrawLine(bl, tl);
     }
 }

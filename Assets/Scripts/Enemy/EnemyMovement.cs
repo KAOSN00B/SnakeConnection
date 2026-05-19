@@ -18,21 +18,13 @@ public class EnemyMovement : MonoBehaviour
 
     private void Start()
     {
-        GameObject player = GameObject.FindWithTag("Player");
-        if (player != null) _playerTransform = player.transform;
-
-        // Set target immediately so the first FixedUpdate has something to move toward.
-        // Without this, FixedUpdate runs before the first Update and the enemy stands still.
+        _playerTransform = FindPlayer();
         UpdateTarget();
     }
 
     private void FixedUpdate()
     {
-        if (_playerTransform == null)
-        {
-            GameObject player = GameObject.FindWithTag("Player");
-            if (player != null) _playerTransform = player.transform;
-        }
+        if (_playerTransform == null) _playerTransform = FindPlayer();
 
         // Refresh target on a timer instead of every tick — saves a full follower list walk
         _targetRefreshTimer -= Time.fixedDeltaTime;
@@ -59,7 +51,15 @@ public class EnemyMovement : MonoBehaviour
         if (ChainManager.Instance != null && ChainManager.Instance.HasFollowers)
             _target = ChainManager.Instance.GetNearestFollower(transform.position);
         else
-            _target = _playerTransform;
+            _target = _playerTransform != null ? _playerTransform : FindPlayer();
+    }
+
+    private Transform FindPlayer()
+    {
+        var move = Object.FindAnyObjectByType<PlayerMovement>();
+        if (move != null) return move.transform;
+        var obj = GameObject.FindWithTag("Player");
+        return obj != null ? obj.transform : null;
     }
 
     private void OnCollisionStay(Collision collision) => ProcessContact(collision.gameObject);

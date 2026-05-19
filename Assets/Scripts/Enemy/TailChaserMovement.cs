@@ -22,12 +22,14 @@ public class TailChaserMovement : MonoBehaviour
 
     private void Start()
     {
-        GameObject player = GameObject.FindWithTag("Player");
-        if (player != null) _playerTransform = player.transform;
+        _playerTransform = FindPlayer();
+        UpdateTarget();
     }
 
     private void Update()
     {
+        if (_playerTransform == null) _playerTransform = FindPlayer();
+
         _targetRefreshTimer -= Time.deltaTime;
         if (_targetRefreshTimer <= 0f)
         {
@@ -51,15 +53,24 @@ public class TailChaserMovement : MonoBehaviour
 
     private void UpdateTarget()
     {
+        Transform player = _playerTransform != null ? _playerTransform : FindPlayer();
+
         if (ChainManager.Instance == null || !ChainManager.Instance.HasFollowers)
         {
-            _target = _playerTransform;
+            _target = player;
             return;
         }
 
-        // Always go for the tail — the furthest, most exposed follower
         Transform tail = ChainManager.Instance.GetTailFollower();
-        _target = tail != null ? tail : _playerTransform;
+        _target = tail != null ? tail : player;
+    }
+
+    private Transform FindPlayer()
+    {
+        var move = Object.FindAnyObjectByType<PlayerMovement>();
+        if (move != null) return move.transform;
+        var obj = GameObject.FindWithTag("Player");
+        return obj != null ? obj.transform : null;
     }
 
     private void FaceTarget()
