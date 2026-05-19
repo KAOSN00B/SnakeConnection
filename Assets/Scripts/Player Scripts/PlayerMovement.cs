@@ -5,6 +5,10 @@ public class PlayerMovement : MonoBehaviour
     // Movement speed exposed in the Inspector — no drag/damping, velocity is set directly
     [SerializeField] private float _moveSpeed;
 
+    // Set by PlayerFeelController each frame — 1.0 normally, ramps to 1.3 over 90 seconds,
+    // briefly spikes higher on sharp direction changes
+    public float SpeedMultiplier { get; set; } = 1f;
+
     // Raw WASD input values (-1, 0, or 1 per axis)
     private float _horizontalInput;
     private float _verticalInput;
@@ -62,8 +66,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void ApplyMovement()
     {
-        // Build the target XZ velocity from direction + speed
-        Vector3 targetVelocity = _moveDirection * _moveSpeed;
+        // Build the target XZ velocity from direction + speed, scaled by PlayerFeelController's multiplier
+        Vector3 targetVelocity = _moveDirection * _moveSpeed * SpeedMultiplier;
 
         // Set velocity directly instead of using AddForce.
         // We preserve the current Y velocity so gravity still applies normally.

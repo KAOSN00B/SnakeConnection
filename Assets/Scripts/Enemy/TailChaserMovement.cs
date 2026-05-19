@@ -1,6 +1,9 @@
 using UnityEngine;
 
-public class EnemyMovement : MonoBehaviour
+// Enemy type that ignores the player and hunts the tail of the chain.
+// Falls back to the player only when no followers exist.
+// Assign this instead of EnemyMovement on your tail-chaser prefab.
+public class TailChaserMovement : MonoBehaviour
 {
     [SerializeField] private float _speed = 7f;
     [SerializeField] private int _damage = 1;
@@ -9,46 +12,49 @@ public class EnemyMovement : MonoBehaviour
     private Transform _playerTransform;
     private Transform _target;
     private float _nextAttackTime;
+    private Vector3 _directionToTarget;
 
     private void Start()
     {
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null) _playerTransform = player.transform;
+    }
 
-        // Set target immediately so the first FixedUpdate has something to move toward.
-        // Without this, FixedUpdate runs before the first Update and the enemy stands still.
+    private void Update()
+    {
         UpdateTarget();
+        if (_target == null) return;
+
+        Vector3 flat = _target.position - transform.position;
+        flat.y = 0f;
+        _directionToTarget = flat.normalized;
+
+        FaceTarget();
     }
 
     private void FixedUpdate()
     {
-        // Re-find player if lost (e.g. scene reload edge case)
-        if (_playerTransform == null)
-        {
-            GameObject player = GameObject.FindWithTag("Player");
-            if (player != null) _playerTransform = player.transform;
-        }
-
-        UpdateTarget();
         if (_target == null) return;
-
-        // Compute direction fresh every physics tick — no dependency on Update having run first
-        Vector3 flat = _target.position - transform.position;
-        flat.y = 0f;
-
-        if (flat.sqrMagnitude < 0.01f) return;
-
-        Vector3 dir = flat.normalized;
-        transform.position += dir * _speed * Time.fixedDeltaTime;
-        transform.rotation = Quaternion.LookRotation(dir);
+        transform.position += _directionToTarget * _speed * Time.fixedDeltaTime;
     }
 
     private void UpdateTarget()
     {
-        if (ChainManager.Instance != null && ChainManager.Instance.HasFollowers)
-            _target = ChainManager.Instance.GetNearestFollower(transform.position);
-        else
+        if (ChainManager.Instance == null || !ChainManager.Instance.HasFollowers)
+        {
             _target = _playerTransform;
+            return;
+        }
+
+        // Always go for the tail — the furthest, most exposed follower
+        Transform tail = ChainManager.Instance.GetTailFollower();
+        _target = tail != null ? tail : _playerTransform;
+    }
+
+    private void FaceTarget()
+    {
+        if (_directionToTarget != Vector3.zero)
+            transform.rotation = Quaternion.LookRotation(_directionToTarget);
     }
 
     private void OnCollisionStay(Collision collision) => ProcessContact(collision.gameObject);

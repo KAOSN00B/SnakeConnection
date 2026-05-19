@@ -40,11 +40,12 @@ public class Bullet : MonoBehaviour
     private bool ShouldIgnore(GameObject target)
     {
         if (target == _owner) return true;
-        
-        // Ignore the player and other followers
-        if (target.CompareTag("Player") || target.CompareTag("Follower"))
+
+        // Only skip Player/Follower if this is a friendly bullet (owner is set).
+        // Enemy bullets have no owner, so they should hit Player and Follower normally.
+        if (_owner != null && (target.CompareTag("Player") || target.CompareTag("Follower")))
             return true;
-            
+
         return false;
     }
 

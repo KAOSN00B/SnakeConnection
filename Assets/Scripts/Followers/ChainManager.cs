@@ -88,7 +88,8 @@ public class ChainManager : MonoBehaviour
         }
     }
 
-    public bool HasFollowers => _followers.Count > 0;
+    public bool HasFollowers  => _followers.Count > 0;
+    public int  FollowerCount => _followers.Count;
 
     // Called by FollowerPickup when a new follower is collected
     public void AddFollower(FollowerMovement follower)
@@ -129,6 +130,20 @@ public class ChainManager : MonoBehaviour
         }
 
         return nearest;
+    }
+
+    // Returns the last follower in the chain — used by tail-chaser enemies
+    public Transform GetTailFollower()
+    {
+        if (_followers.Count == 0) return null;
+        return _followers[_followers.Count - 1].transform;
+    }
+
+    // Returns the middle follower in the chain — used by cutter-type enemies
+    public Transform GetMidFollower()
+    {
+        if (_followers.Count == 0) return null;
+        return _followers[_followers.Count / 2].transform;
     }
 
     // Returns the recorded world position at the given history index
