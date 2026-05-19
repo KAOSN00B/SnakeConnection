@@ -12,6 +12,8 @@ public class PlayerFire : MonoBehaviour
     [SerializeField] private float _bulletLifetime = 2f;
     [SerializeField] private float _autoAimRange = 10f;
     [SerializeField] private float _autoAimAngle = 25f;
+    [Tooltip("0 = laser direction only, 1 = full snap to enemy. Keep low (0.25-0.4) for subtle magnetism.")]
+    [SerializeField] [Range(0f, 1f)] private float _aimAssistStrength = 0.3f;
 
     private float _nextFireTime = 0f;
 
@@ -58,37 +60,43 @@ public class PlayerFire : MonoBehaviour
     {
         Transform fireTransform = _firePoint != null ? _firePoint : transform;
 
-        Vector3 defaultDirection = fireTransform.forward;
+        // Flatten the laser forward onto XZ — enemies can be at a different Y than the firePoint,
+        // and we never want the bullet to travel upward or downward
+        Vector3 laserDir = fireTransform.forward;
+        laserDir.y = 0f;
+        laserDir.Normalize();
 
-        Collider[] hits = Physics.OverlapSphere(
-            fireTransform.position,
-            _autoAimRange,
-            _enemyLayer
-        );
+        Collider[] hits = Physics.OverlapSphere(fireTransform.position, _autoAimRange, _enemyLayer);
 
         Transform bestTarget = null;
         float bestAngle = _autoAimAngle;
 
         foreach (Collider hit in hits)
         {
-            Vector3 directionToEnemy =
-                (hit.transform.position - fireTransform.position).normalized;
+            // Flatten enemy direction too — height difference must not pull bullets upward
+            Vector3 toEnemy = hit.transform.position - fireTransform.position;
+            toEnemy.y = 0f;
+            if (toEnemy.sqrMagnitude < 0.001f) continue;
 
-            float angle = Vector3.Angle(defaultDirection, directionToEnemy);
-
+            float angle = Vector3.Angle(laserDir, toEnemy.normalized);
             if (angle < bestAngle)
             {
-                bestAngle = angle;
+                bestAngle  = angle;
                 bestTarget = hit.transform;
             }
         }
 
-        if (bestTarget != null)
-        {
-            return (bestTarget.position - fireTransform.position).normalized;
-        }
+        if (bestTarget == null)
+            return laserDir;
 
-        return defaultDirection;
+        // Blend laser direction with enemy direction rather than replacing it.
+        // At 0.3 the bullet travels 70% laser / 30% toward the enemy — feels like
+        // magnetism rather than snapping, and stays visually close to the laser.
+        Vector3 toTarget = bestTarget.position - fireTransform.position;
+        toTarget.y = 0f;
+        toTarget.Normalize();
+
+        return Vector3.Slerp(laserDir, toTarget, _aimAssistStrength).normalized;
     }
 
 

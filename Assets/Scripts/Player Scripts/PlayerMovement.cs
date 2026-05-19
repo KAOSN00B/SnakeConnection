@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[DefaultExecutionOrder(-10)] // Must run before PlayerFeelController so AimAtMouse sets Y before the tilt reads it
 public class PlayerMovement : MonoBehaviour
 {
     // Movement speed exposed in the Inspector — no drag/damping, velocity is set directly
@@ -77,31 +78,17 @@ public class PlayerMovement : MonoBehaviour
 
     private void AimAtMouse()
     {
-        // Cast a ray from the camera through the mouse cursor position in screen space
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-        // Create an invisible horizontal plane at the player's Y position.
-        // This is what the ray intersects to find the world point the mouse is hovering over.
         Plane groundPlane = new Plane(Vector3.up, transform.position);
 
         if (groundPlane.Raycast(ray, out float distance))
         {
-            // Get the exact world position the mouse is pointing at on the ground plane
             Vector3 targetPoint = ray.GetPoint(distance);
-
-            // Direction from the player to the mouse world position
             Vector3 lookDir = targetPoint - transform.position;
-
-            // Zero out Y so the player only rotates horizontally — no tilting up/down
             lookDir.y = 0f;
 
-            // sqrMagnitude avoids a square root and is faster than magnitude.
-            // The 0.01f threshold prevents jittery rotation when the mouse is almost on the player.
             if (lookDir.sqrMagnitude > 0.01f)
-            {
-                // Rotate the player so its forward (Z) axis points toward the mouse
                 transform.rotation = Quaternion.LookRotation(lookDir);
-            }
         }
     }
 }

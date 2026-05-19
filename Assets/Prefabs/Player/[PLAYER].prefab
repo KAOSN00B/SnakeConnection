@@ -56,6 +56,30 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 9b3c59f1acf44e943b79d328bbe7e445, type: 2}
+    - target: {fileID: 5462368963531268666, guid: 429af5bf711445a46b44d95663dbef2d, type: 3}
+      propertyPath: m_Positions.Array.data[0].x
+      value: -2.63
+      objectReference: {fileID: 0}
+    - target: {fileID: 5462368963531268666, guid: 429af5bf711445a46b44d95663dbef2d, type: 3}
+      propertyPath: m_Positions.Array.data[0].y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5462368963531268666, guid: 429af5bf711445a46b44d95663dbef2d, type: 3}
+      propertyPath: m_Positions.Array.data[0].z
+      value: -0.08000004
+      objectReference: {fileID: 0}
+    - target: {fileID: 5462368963531268666, guid: 429af5bf711445a46b44d95663dbef2d, type: 3}
+      propertyPath: m_Positions.Array.data[1].x
+      value: -10.630001
+      objectReference: {fileID: 0}
+    - target: {fileID: 5462368963531268666, guid: 429af5bf711445a46b44d95663dbef2d, type: 3}
+      propertyPath: m_Positions.Array.data[1].y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5462368963531268666, guid: 429af5bf711445a46b44d95663dbef2d, type: 3}
+      propertyPath: m_Positions.Array.data[1].z
+      value: -0.080001
+      objectReference: {fileID: 0}
     - target: {fileID: 5583836746571049975, guid: 429af5bf711445a46b44d95663dbef2d, type: 3}
       propertyPath: m_Name
       value: FollowPoint
@@ -107,6 +131,18 @@ PrefabInstance:
     - target: {fileID: 7970627989844955175, guid: 429af5bf711445a46b44d95663dbef2d, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 8155896359681542274, guid: 429af5bf711445a46b44d95663dbef2d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.08
+      objectReference: {fileID: 0}
+    - target: {fileID: 8155896359681542274, guid: 429af5bf711445a46b44d95663dbef2d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8155896359681542274, guid: 429af5bf711445a46b44d95663dbef2d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.74
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

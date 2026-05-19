@@ -426,7 +426,13 @@ public class PlayerFeelController : MonoBehaviour
         //       for this to look correct. If the mesh faces a different direction, bake that offset
         //       into the mesh in your modelling tool rather than in the prefab transform.
         if (_bodyTransform != null)
-            _bodyTransform.localRotation = Quaternion.Euler(0f, 0f, _currentTiltZ);
+        {
+            // Preserve the Y rotation set by AimAtMouse — only override Z for the lean.
+            // If _bodyTransform is the same object PlayerMovement rotates, writing
+            // Euler(0,0,tilt) would zero out the mouse-aim Y rotation every frame (the shooting bug).
+            float aimY = _bodyTransform.eulerAngles.y;
+            _bodyTransform.rotation = Quaternion.Euler(0f, aimY, _currentTiltZ);
+        }
 
         _prevFlatVelocity = flatVelocity;
     }
