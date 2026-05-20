@@ -17,43 +17,36 @@
 - N/A (Internal logic change for animations)
 
 # Key Asset & Context
-- **Animator Controller:** `Assets/Synty/AnimationBaseLocomotion/Animations/Polygon/AC_Polygon_Masculine.controller`
+- **Run Animation:** `Assets/Synty/AnimationBaseLocomotion/Animations/Polygon/Masculine/Locomotion/Run/A_Run_F_Masc.fbx`
 - **Scripts:** `PlayerMovement.cs`, `EnemyMovement.cs`, `FollowerMovement.cs`
-- **Parameters:** `MoveSpeed` (float), `CurrentGait` (int), `IsStopped` (bool), `IsGrounded` (bool)
 
 # Implementation Steps
 
-1. **Modify PlayerMovement.cs:**
+1. **Create "AC_AlwaysCharging" Animator Controller:**
+    - A minimalist controller with exactly one state: **Run**.
+    - The state uses the `A_Run_F_Masc` animation.
+    - No parameters (IsStopped, IsGrounded, etc.) are used or required.
+
+2. **Modify PlayerMovement.cs:**
     - Add `[SerializeField] private Animator _animator;`
-    - In `Start()`, set constant parameters:
-        - `_animator.SetInteger("CurrentGait", 2);`
-        - `_animator.SetBool("IsStopped", false);`
-        - `_animator.SetBool("IsGrounded", true);`
-    - In `ApplyMovement()`, update `_animator.SetFloat("MoveSpeed", 2.5f * SpeedMultiplier);` to scale animation with game speed.
+    - In `Update()`, set `_animator.speed = _moveSpeed * SpeedMultiplier / 2.5f;` (scaling the playback speed by the actual move speed relative to a base run).
 
-2. **Modify EnemyMovement.cs:**
+3. **Modify EnemyMovement.cs:**
     - Add `private Animator _animator;`
-    - In `Start()`, get the animator and set constant parameters:
-        - `_animator.SetInteger("CurrentGait", 2);`
-        - `_animator.SetBool("IsStopped", false);`
-        - `_animator.SetBool("IsGrounded", true);`
-    - In `FixedUpdate()`, update `_animator.SetFloat("MoveSpeed", _speed / 2.5f);` (or similar scaling).
+    - In `Start()`, get the animator using `GetComponentInChildren<Animator>()`.
+    - In `FixedUpdate()`, set `_animator.speed = _speed / 2.5f;`.
 
-3. **Modify FollowerMovement.cs:**
+4. **Modify FollowerMovement.cs:**
     - Add `private Animator _animator;`
-    - In `Awake()`, get the animator and set constant parameters:
-        - `_animator.SetInteger("CurrentGait", 2);`
-        - `_animator.SetBool("IsStopped", false);`
-        - `_animator.SetBool("IsGrounded", true);`
-    - Animation speed will be constant or linked to player's speed.
+    - In `Awake()`, get the animator using `GetComponentInChildren<Animator>()`.
+    - At runtime, the playback speed will match the chain's velocity.
 
-4. **Scene/Prefab Setup:**
-    - For the **Player** object in `TopDownGame.unity`, assign the `AC_Polygon_Masculine` controller to the `Animator` on the child model and link the `Animator` field in `PlayerMovement`.
-    - For the **Enemy Prefabs** and **Follower Prefab** (the one spawned by pickup), assign the controller to the `Animator` on the child model.
-    - **FollowerPickup** model will remain without the locomotion controller or logic, staying Idle.
+5. **Scene/Prefab Setup:**
+    - Assign the new `AC_AlwaysCharging` controller to the **Player**, **Enemy Prefabs**, and **Follower Prefab**.
+    - **FollowerPickup** will NOT be given this controller, ensuring it remains in a static Idle pose.
 
 # Verification & Testing
 - Enter Play mode.
-- Confirm the Player plays the Run animation and it speeds up over time.
-- Confirm spawned Enemies play the Run animation.
-- Confirm collected Followers switch from Idle (as pickups) to Run (as followers).
+- Confirm all characters (Player, Enemy, Follower) are playing the run animation immediately.
+- Confirm animation speed scales with game speed.
+- Confirm Pickups stay Idle.

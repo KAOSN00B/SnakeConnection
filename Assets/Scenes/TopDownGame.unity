@@ -859,14 +859,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2735067346191019110, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
-      propertyPath: _moveSpeed
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 2735067346191019110, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
-      propertyPath: _orientation
+    - target: {fileID: 90725905309298874, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
+      propertyPath: _moveCamera
       value: 
-      objectReference: {fileID: 233523025}
+      objectReference: {fileID: 931340723}
+    - target: {fileID: 90725905309298874, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
+      propertyPath: _postProcessVolume
+      value: 
+      objectReference: {fileID: 594054751}
+    - target: {fileID: 2709680859477328638, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: a116101ba639fb64aa9ac54f53737487, type: 2}
     - target: {fileID: 5672227774238549885, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
       propertyPath: m_Name
       value: '[PLAYER]'
@@ -911,33 +915,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8931332161009562694, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
-      propertyPath: m_Positions.Array.data[0].x
-      value: 2.10362
-      objectReference: {fileID: 0}
-    - target: {fileID: 8931332161009562694, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
-      propertyPath: m_Positions.Array.data[0].z
-      value: 4.33326
-      objectReference: {fileID: 0}
-    - target: {fileID: 8931332161009562694, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
-      propertyPath: m_Positions.Array.data[1].x
-      value: -5.896381
-      objectReference: {fileID: 0}
-    - target: {fileID: 8931332161009562694, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
-      propertyPath: m_Positions.Array.data[1].z
-      value: 4.333259
-      objectReference: {fileID: 0}
-    - target: {fileID: 9048298293251724746, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
-      propertyPath: _excludeLayers.m_Bits
-      value: 192
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6818756647631439451, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1616986186}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
 --- !u!1 &594054750
 GameObject:
@@ -2140,53 +2121,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1549543225}
   m_CullTransparentMesh: 1
---- !u!1 &1616986177 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6818756647631439451, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
-  m_PrefabInstance: {fileID: 536174687}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1616986178 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5890379521983782257, guid: c28d4ca5f838f5142ac8e738a40621c7, type: 3}
   m_PrefabInstance: {fileID: 536174687}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1616986186
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1616986177}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cdf3345cb926bf7499e100b06e75f0c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerFeelController
-  _bodyTransform: {fileID: 1616986178}
-  _moveCamera: {fileID: 931340723}
-  _postProcessVolume: {fileID: 594054751}
-  _cameraForwardOffset: 2
-  _cameraLerpSpeed: 5
-  _cameraStartY: 8.5
-  _cameraMaxY: 12
-  _survivalDuration: 90
-  _maxSpeedMultiplier: 1.3
-  _spikeMultiplier: 1
-  _spikeDuration: 0.1
-  _sharpTurnDotThreshold: 0
-  _maxTiltDegrees: 6
-  _tiltLerpSpeed: 10
-  _nearMissRadius: 2
-  _nearMissChromaticPeak: 0.65
-  _nearMissFadeTime: 0.25
-  _trailStartWidth: 0.35
-  _trailLength: 30
-  _trailSampleRate: 0.05
-  _trailColor: {r: 0.14509805, g: 0.43392485, b: 0.9764706, a: 0.7411765}
-  _panicFollowerThreshold: 1
-  _vignettePulsePeriod: 0.8
-  _vignetteMaxIntensity: 0.3
-  _vignetteColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &1690961748
 GameObject:
   m_ObjectHideFlags: 0

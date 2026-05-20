@@ -21,11 +21,13 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody _rb;
     // Camera.main does a FindObjectByTag scan every call; cache it once
     private Camera _mainCamera;
+    private Animator _animator;
 
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
         _mainCamera = Camera.main;
+        _animator = GetComponentInChildren<Animator>();
     }
 
     void Start()
@@ -40,6 +42,11 @@ public class PlayerMovement : MonoBehaviour
         // Input and aiming run every frame for responsiveness
         GatherInput();
         AimAtMouse();
+
+        if (_animator != null)
+        {
+            _animator.speed = SpeedMultiplier;
+        }
     }
 
     void FixedUpdate()

@@ -12,6 +12,7 @@ public class EnemyMovement : MonoBehaviour
     private Transform _target;
     private float _nextAttackTime;
     private float _targetRefreshTimer;
+    private Animator _animator;
 
     private void OnEnable()  => EnemyRegistry.Register(transform);
     private void OnDisable() => EnemyRegistry.Unregister(transform);
@@ -20,6 +21,11 @@ public class EnemyMovement : MonoBehaviour
     {
         _playerTransform = FindPlayer();
         UpdateTarget();
+        _animator = GetComponentInChildren<Animator>();
+        if (_animator != null)
+        {
+            _animator.speed = _speed / 2.5f;
+        }
     }
 
     private void FixedUpdate()
@@ -44,7 +50,12 @@ public class EnemyMovement : MonoBehaviour
         Vector3 dir = flat.normalized;
         transform.position += dir * _speed * Time.fixedDeltaTime;
         transform.rotation = Quaternion.LookRotation(dir);
-    }
+
+        if (_animator != null)
+        {
+            _animator.speed = _speed / 2.5f;
+        }
+        }
 
     private void UpdateTarget()
     {

@@ -9,10 +9,14 @@ public class FollowerMovement : MonoBehaviour
 
     // Cached once in Awake — avoids TryGetComponent every FixedUpdate
     private FolloweAttack _attack;
+    private Animator _animator;
+    private PlayerMovement _player;
 
     private void Awake()
     {
         _attack = GetComponent<FolloweAttack>();
+        _animator = GetComponentInChildren<Animator>();
+        _player = Object.FindAnyObjectByType<PlayerMovement>();
     }
 
     private void Start()
@@ -37,6 +41,14 @@ public class FollowerMovement : MonoBehaviour
     {
         if (ChainManager.Instance == null) return;
         UpdatePosition();
+
+        if (_animator != null)
+        {
+            // If we can't find the player or they don't have a multiplier, default to 1.
+            float speed = (_player != null) ? _player.SpeedMultiplier : 1f;
+            // Baseline 1.0 speed for followers, scaled by the game's speed escalation.
+            _animator.speed = speed;
+        }
     }
 
     private void UpdatePosition()
