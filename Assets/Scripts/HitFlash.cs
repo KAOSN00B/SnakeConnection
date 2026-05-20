@@ -17,21 +17,33 @@ public class HitFlash : MonoBehaviour
 
     private Health _health;
     private Renderer[] _renderers;
-    private Color[] _originalColors;
+    private Material[][] _originalMats;
+    private Material[][] _flashMats;
+    private Material _flashMat;
     private Coroutine _activeFlash;
 
     private void Awake()
     {
-        // Try this object first, then walk up the hierarchy (handles player body child)
-        _health = GetComponent<Health>() ?? GetComponentInParent<Health>();
-
-        // Grab all renderers in this object and its children (catches multi-mesh characters)
+        _health    = GetComponent<Health>() ?? GetComponentInParent<Health>();
         _renderers = GetComponentsInChildren<Renderer>();
 
-        // Snapshot original material colors now so the flash can always restore correctly
-        _originalColors = new Color[_renderers.Length];
+        // Unlit/Color shows as flat white regardless of lighting or shader type
+        _flashMat = new Material(Shader.Find("Unlit/Color")) { color = Color.white };
+
+        _originalMats = new Material[_renderers.Length][];
+        _flashMats    = new Material[_renderers.Length][];
         for (int i = 0; i < _renderers.Length; i++)
-            _originalColors[i] = _renderers[i].material.color;
+        {
+            _originalMats[i] = _renderers[i].sharedMaterials;
+            _flashMats[i]    = new Material[_originalMats[i].Length];
+            for (int j = 0; j < _flashMats[i].Length; j++)
+                _flashMats[i][j] = _flashMat;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (_flashMat != null) Destroy(_flashMat);
     }
 
     private void OnEnable()
@@ -60,15 +72,13 @@ public class HitFlash : MonoBehaviour
 
     private IEnumerator FlashRoutine()
     {
-        // White out all renderers
-        foreach (Renderer r in _renderers)
-            r.material.color = Color.white;
+        for (int i = 0; i < _renderers.Length; i++)
+            _renderers[i].materials = _flashMats[i];
 
         yield return new WaitForSeconds(_flashDuration);
 
-        // Restore original colors
         for (int i = 0; i < _renderers.Length; i++)
-            _renderers[i].material.color = _originalColors[i];
+            _renderers[i].sharedMaterials = _originalMats[i];
 
         _activeFlash = null;
     }

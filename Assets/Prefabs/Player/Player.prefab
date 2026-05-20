@@ -66,7 +66,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -402,9 +402,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd3565276f8ab914f83294d884026296, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  moveSpeed: 7
-  orientation: {fileID: 8121304018289064735}
-  drag: 5
+  _moveSpeed: 0
 --- !u!114 &51779519039727978
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -419,14 +417,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFire
   _firePoint: {fileID: 8155896359681542274}
   _bulletPrefab: {fileID: 4642965890253812081, guid: 6ffdb1843ae09204bb0efa2b1b7368f7, type: 3}
-  _enemyLayer:
-    serializedVersion: 2
-    m_Bits: 8
   _bulletSpeed: 20
   _fireRate: 1
   _bulletLifetime: 2
-  _autoAimRange: 20
-  _autoAimAngle: 50
 --- !u!114 &5597499062377218998
 MonoBehaviour:
   m_ObjectHideFlags: 0

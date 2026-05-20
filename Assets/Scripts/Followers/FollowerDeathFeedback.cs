@@ -20,29 +20,34 @@ public class FollowerDeathFeedback : MonoBehaviour
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
         float flashInterval = _flashDuration / (_flashCount * 2);
 
-        // Snapshot original colors before we touch any materials
-        Color[] originalColors = new Color[renderers.Length];
+        Material flashMat = new Material(Shader.Find("Unlit/Color")) { color = Color.white };
+        Material[][] originalMats = new Material[renderers.Length][];
+        Material[][] flashMats    = new Material[renderers.Length][];
         for (int i = 0; i < renderers.Length; i++)
-            originalColors[i] = renderers[i].material.color;
+        {
+            originalMats[i] = renderers[i].sharedMaterials;
+            flashMats[i]    = new Material[originalMats[i].Length];
+            for (int j = 0; j < flashMats[i].Length; j++)
+                flashMats[i][j] = flashMat;
+        }
 
-        // Play death sound at world position so it doesn't move with the camera
         if (_deathSound != null)
             AudioSource.PlayClipAtPoint(_deathSound, transform.position);
 
-        // Flash white then back to original, repeated _flashCount times
         for (int f = 0; f < _flashCount; f++)
         {
-            foreach (Renderer r in renderers)
-                r.material.color = Color.white;
+            for (int i = 0; i < renderers.Length; i++)
+                renderers[i].materials = flashMats[i];
 
             yield return new WaitForSeconds(flashInterval);
 
             for (int i = 0; i < renderers.Length; i++)
-                renderers[i].material.color = originalColors[i];
+                renderers[i].sharedMaterials = originalMats[i];
 
             yield return new WaitForSeconds(flashInterval);
         }
 
+        Destroy(flashMat);
         Destroy(gameObject);
     }
 }
