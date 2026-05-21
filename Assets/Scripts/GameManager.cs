@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private string _enemyLayer = "Enemy";
     [SerializeField] private string _playerBulletLayer = "PlayerBullet";
     [SerializeField] private string _enemyBulletLayer = "EnemyBullet";
+    [SerializeField] private string _kidnappedFollowerLayer = "KidnappedFollower";
 
     private void Awake()
     {
@@ -26,11 +27,12 @@ public class GameManager : MonoBehaviour
 
     private void SetupLayerCollisions()
     {
-        int player = LayerMask.NameToLayer(_playerLayer);
-        int follower = LayerMask.NameToLayer(_followerLayer);
-        int enemy = LayerMask.NameToLayer(_enemyLayer);
-        int playerBullet = LayerMask.NameToLayer(_playerBulletLayer);
-        int enemyBullet = LayerMask.NameToLayer(_enemyBulletLayer);
+        int player            = LayerMask.NameToLayer(_playerLayer);
+        int follower          = LayerMask.NameToLayer(_followerLayer);
+        int enemy             = LayerMask.NameToLayer(_enemyLayer);
+        int playerBullet      = LayerMask.NameToLayer(_playerBulletLayer);
+        int enemyBullet       = LayerMask.NameToLayer(_enemyBulletLayer);
+        int kidnappedFollower = LayerMask.NameToLayer(_kidnappedFollowerLayer);
 
         // Chain units don't push each other
         Physics.IgnoreLayerCollision(player, follower, true);
@@ -42,5 +44,10 @@ public class GameManager : MonoBehaviour
 
         // Enemy bullets don't hit enemies
         Physics.IgnoreLayerCollision(enemyBullet, enemy, true);
+
+        // Kidnapped followers are untouchable — no bullets or enemies can damage them while captured
+        Physics.IgnoreLayerCollision(playerBullet, kidnappedFollower, true);
+        Physics.IgnoreLayerCollision(enemyBullet,  kidnappedFollower, true);
+        Physics.IgnoreLayerCollision(enemy,        kidnappedFollower, true);
     }
 }

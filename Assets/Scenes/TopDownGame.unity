@@ -4096,7 +4096,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   _enemyPrefabs:
-  - {fileID: 4528111219015725795, guid: 9139242b4afb2d9488f5eff63cd733b5, type: 3}
+  - {fileID: 4528111219015725795, guid: 1c57467e479b215498bc1f0a929e841c, type: 3}
   _spawnHalfX: 30
   _spawnHalfZ: 32.5
   _initialEnemyLimit: 5
