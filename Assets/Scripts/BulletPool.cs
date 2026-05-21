@@ -39,7 +39,7 @@ public class BulletPool : MonoBehaviour
     public Bullet Get(GameObject prefab, Vector3 position, Quaternion rotation,
                       Vector3 velocity, float lifetime, GameObject owner = null)
     {
-        int key = prefab.GetInstanceID();
+        int key = prefab.GetHashCode();
         if (!_pools.TryGetValue(key, out Stack<Bullet> stack))
         {
             stack = new Stack<Bullet>(16);

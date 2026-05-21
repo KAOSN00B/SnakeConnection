@@ -163,6 +163,7 @@ MonoBehaviour:
   _flashCount: 3
   _flashDuration: 0.5
   _deathSound: {fileID: 0}
+  _explosionParticlePrefab: {fileID: 1056904543853562, guid: 4cf45cdce36e66e4a93614abb5ae7821, type: 3}
 --- !u!54 &-4722782574440217263
 Rigidbody:
   m_ObjectHideFlags: 0

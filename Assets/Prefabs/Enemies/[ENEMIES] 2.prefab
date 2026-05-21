@@ -46,7 +46,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2869009793988537621, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
       propertyPath: _maxHealth
-      value: 4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3260102674357125799, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
       propertyPath: m_LocalPosition.x
@@ -210,6 +210,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1550672808291654, guid: 0f9ccd71741ee50488626ad04bd719f9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1477544810076252082}
+    - targetCorrespondingSourceObject: {fileID: 1491596299266068, guid: 0f9ccd71741ee50488626ad04bd719f9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 393125930212021106}
   m_SourcePrefab: {fileID: 100100000, guid: 0f9ccd71741ee50488626ad04bd719f9, type: 3}
 --- !u!4 &8765274803997487100 stripped
 Transform:
@@ -234,3 +237,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitFlash
   _flashDuration: 0.1
+--- !u!1 &8768409285507803292 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1491596299266068, guid: 0f9ccd71741ee50488626ad04bd719f9, type: 3}
+  m_PrefabInstance: {fileID: 8767076156860858504}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &393125930212021106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8768409285507803292}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b21e846c614577e4f89d11d87d7e59cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDeathFeedback
+  _deathParticlePrefab: {fileID: 1277154925287174, guid: 3b517eddec185dd4a830743a742ad00b, type: 3}

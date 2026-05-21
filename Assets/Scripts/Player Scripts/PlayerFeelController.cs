@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 
 // =====================================================================
 // PlayerFeelController.cs  —  Attach to the Player root GameObject.
@@ -34,6 +35,12 @@ public class PlayerFeelController : MonoBehaviour
     // =====================================================================
     // INSPECTOR FIELDS
     // =====================================================================
+
+    [Header("Player Death")]
+    [Tooltip("Particle prefab that plays at the player's position when they die.")]
+    [SerializeField] private GameObject _deathExplosionPrefab;
+    [Tooltip("Fallback delay before reloading if no particle is assigned.")]
+    [SerializeField] private float _deathDelay = 2f;
 
     [Header("References")]
     [Tooltip("The child GameObject that is the player's visual mesh. Tilt is applied here.")]
@@ -201,7 +208,7 @@ public class PlayerFeelController : MonoBehaviour
 
         // Auto-locate MoveCamera if the Inspector field was left empty
         if (_moveCamera == null)
-            _moveCamera = FindFirstObjectByType<MoveCamera>();
+            _moveCamera = FindAnyObjectByType<MoveCamera>();
 
         // Try to connect post-processing (logs warnings if not found — non-fatal)
         SetupPostProcessing();
@@ -215,15 +222,16 @@ public class PlayerFeelController : MonoBehaviour
 
     private void OnEnable()
     {
-        // Subscribe to the player's health event so we can react to damage with shake + chromatic
         if (_playerHealth != null)
             _playerHealth.OnHealthChanged += OnPlayerHealthChanged;
+        Health.OnPlayerDeath += HandlePlayerDeath;
     }
 
     private void OnDisable()
     {
         if (_playerHealth != null)
             _playerHealth.OnHealthChanged -= OnPlayerHealthChanged;
+        Health.OnPlayerDeath -= HandlePlayerDeath;
     }
 
     private void Update()
@@ -248,7 +256,7 @@ public class PlayerFeelController : MonoBehaviour
     private void SetupPostProcessing()
     {
         if (_postProcessVolume == null)
-            _postProcessVolume = FindFirstObjectByType<Volume>();
+            _postProcessVolume = FindAnyObjectByType<Volume>();
 
         if (_postProcessVolume == null)
         {
@@ -264,10 +272,6 @@ public class PlayerFeelController : MonoBehaviour
 
         _ppReady = true;
 
-        if (_chromatic == null)
-            Debug.LogWarning("[PlayerFeel] No ChromaticAberration override in Volume profile. Near-miss effect disabled.");
-        if (_vignette == null)
-            Debug.LogWarning("[PlayerFeel] No Vignette override in Volume profile. Panic pulse disabled.");
     }
 
     private void SetupTrail()
@@ -618,5 +622,52 @@ public class PlayerFeelController : MonoBehaviour
 
         // AUDIO: Player shoot sound
         // AudioManager.Instance?.Play("PlayerShoot");
+    }
+
+    // =====================================================================
+    // PLAYER DEATH
+    // =====================================================================
+
+    private void HandlePlayerDeath()
+    {
+        StartCoroutine(PlayerDeathRoutine());
+    }
+
+    private IEnumerator PlayerDeathRoutine()
+    {
+        float delay = _deathDelay;
+
+        // This script lives on the player root, so transform.position is always exact
+        if (_deathExplosionPrefab != null)
+        {
+            GameObject explosion = Instantiate(_deathExplosionPrefab, transform.position, Quaternion.identity);
+
+            ParticleSystem particle = explosion.GetComponent<ParticleSystem>();
+            if (particle != null && !particle.main.loop)
+            {
+                // Force unscaled time so the particle plays even after Time.timeScale = 0
+                var main = particle.main;
+                main.useUnscaledTime = true;
+                delay = particle.main.duration;
+            }
+        }
+
+        // Hide the player after spawning the explosion
+        gameObject.SetActive(false);
+
+        // Stop shake before freezing — ShakeRoutine uses Time.deltaTime which becomes 0
+        // at timeScale 0, so any active shake would loop forever without this
+        _moveCamera?.StopShake();
+
+        // Freeze everything — enemies, spawners, bullets all stop
+        Time.timeScale = 0f;
+
+        // WaitForSecondsRealtime ignores timeScale so the delay still counts down
+        yield return new WaitForSecondsRealtime(delay);
+
+        Time.timeScale = 1f;
+
+        // TODO: show game over screen here instead of reloading immediately
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

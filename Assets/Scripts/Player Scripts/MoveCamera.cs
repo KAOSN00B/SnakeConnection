@@ -41,10 +41,17 @@ public class MoveCamera : MonoBehaviour
             orientation.rotation = Quaternion.Euler(0, transform.eulerAngles.y, 0);
     }
 
-    // Call this from any system that needs screen shake (e.g. follower death)
     public void AddShake(float duration, float magnitude)
     {
         StartCoroutine(ShakeRoutine(duration, magnitude));
+    }
+
+    // Immediately cancels all active shakes — call this before freezing Time.timeScale
+    // so ShakeRoutine doesn't loop forever waiting on Time.deltaTime to advance
+    public void StopShake()
+    {
+        StopAllCoroutines();
+        _shakeOffset = Vector3.zero;
     }
 
     private IEnumerator ShakeRoutine(float duration, float magnitude)

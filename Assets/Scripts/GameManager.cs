@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -40,22 +39,5 @@ public class GameManager : MonoBehaviour
 
         // Enemy bullets don't hit enemies
         Physics.IgnoreLayerCollision(enemyBullet, enemy, true);
-    }
-
-    private void OnEnable()
-    {
-        Health.OnPlayerDeath += HandlePlayerDeath;
-    }
-
-    private void OnDisable()
-    {
-        // Always unsubscribe to avoid stale references
-        Health.OnPlayerDeath -= HandlePlayerDeath;
-    }
-
-    private void HandlePlayerDeath()
-    {
-        // TODO: pause game and show game over screen before reloading
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
