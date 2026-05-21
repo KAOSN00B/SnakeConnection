@@ -136,8 +136,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FollowerMovement
   _rotationSpeed: 10
-  _returnSpeed: 15
-  _snapThreshold: 0.2
   _contactRadius: 0.6
   _contactDamageCooldown: 1
 --- !u!114 &5834209212977056511
@@ -434,6 +432,10 @@ PrefabInstance:
       propertyPath: m_ApplyRootMotion
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 137281717365063168, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a1260db7eb4efe7478246fda2858823d, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

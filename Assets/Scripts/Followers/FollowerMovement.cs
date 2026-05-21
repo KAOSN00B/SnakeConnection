@@ -16,8 +16,10 @@ public class FollowerMovement : MonoBehaviour
     // Shared buffer across all followers — NonAlloc avoids a new array allocation each check
     private static readonly Collider[] _contactBuffer = new Collider[8];
 
+    [SerializeField] private float _snapThreshold = 0.5f;
+    [SerializeField] private float _returnSpeed = 10f;
+
     // Cached once in Awake — avoids TryGetComponent every FixedUpdate
-    private FolloweAttack _attack;
     private Animator _animator;
     private PlayerMovement _player;
     private Health _health;
@@ -28,7 +30,6 @@ public class FollowerMovement : MonoBehaviour
 
     private void Awake()
     {
-        _attack = GetComponent<FolloweAttack>();
         _animator = GetComponentInChildren<Animator>();
         _player = Object.FindAnyObjectByType<PlayerMovement>();
         _health = GetComponent<Health>();
@@ -108,22 +109,32 @@ public class FollowerMovement : MonoBehaviour
     private void UpdatePosition()
     {
         Vector3 targetPos = ChainManager.Instance.GetHistoryPosition(_historyIndex);
-        FaceMovementDirection(targetPos);
-        // Snap to the history point — smoothness comes from the dense recording, not interpolation
-        transform.position = targetPos;
+
+        // Only drive X/Z — Y is left to the Rigidbody and floor collider, same as the player
+        float horizontalDistance = new Vector2(
+            transform.position.x - targetPos.x,
+            transform.position.z - targetPos.z).magnitude;
+
+        Vector3 horizontalTarget = new Vector3(targetPos.x, transform.position.y, targetPos.z);
+        Vector3 positionBeforeMove = transform.position;
+
+        // If far from slot (e.g. just rescued), run back instead of teleporting
+        if (horizontalDistance > _snapThreshold)
+            transform.position = Vector3.MoveTowards(transform.position, horizontalTarget, _returnSpeed * Time.fixedDeltaTime);
+        else
+            transform.position = horizontalTarget;
+
+        // Rotate based on actual movement delta — using targetPos direction gives zero on snap,
+        // which locked followers to one facing direction
+        FaceMovementDirection(transform.position - positionBeforeMove);
     }
 
-    private void FaceMovementDirection(Vector3 targetPos)
+    private void FaceMovementDirection(Vector3 moveDelta)
     {
-        // Don't rotate to face movement if we have an enemy target
-        if (_attack != null && _attack.HasTarget) return;
-
-        // Rotate to face the direction of travel before moving
-        Vector3 moveDir = targetPos - transform.position;
-        if (moveDir.sqrMagnitude > 0.001f)
+        moveDelta.y = 0f;
+        if (moveDelta.sqrMagnitude > 0.0001f)
         {
-            moveDir.y = 0f;
-            Quaternion targetRot = Quaternion.LookRotation(moveDir);
+            Quaternion targetRot = Quaternion.LookRotation(moveDelta);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.fixedDeltaTime * _rotationSpeed);
         }
     }

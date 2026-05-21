@@ -35,21 +35,7 @@ public class FolloweAttack : MonoBehaviour
         }
 
         if (_enemyTarget != null)
-        {
-            FaceTarget();
             HandleFiring();
-        }
-    }
-
-    private void FaceTarget()
-    {
-        Vector3 directionToEnemy = _enemyTarget.position - transform.position;
-        directionToEnemy.y = 0f;
-        if (directionToEnemy.sqrMagnitude > 0.001f)
-        {
-            Quaternion targetRot = Quaternion.LookRotation(directionToEnemy);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 10f);
-        }
     }
 
     private void FindNearestTarget()
