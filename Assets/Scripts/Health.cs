@@ -1,5 +1,10 @@
 using UnityEngine;
 
+// General-purpose health component for the Player, Followers, and Enemies.
+// On death, routes to the correct handler:
+//   - Player   → fires the static OnPlayerDeath event (handled by PlayerFeelController)
+//   - Follower → calls FollowerDeathFeedback.TriggerDeath() for the flash + particle sequence
+//   - Everything else → Destroy(gameObject) immediately
 public class Health : MonoBehaviour, IDamageable
 {
     public static event System.Action OnPlayerDeath;

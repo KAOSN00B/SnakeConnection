@@ -1,5 +1,9 @@
 using UnityEngine;
 
+// Handles WASD movement and mouse-aim rotation for the player.
+// Input is read every Update(); Rigidbody velocity is applied every FixedUpdate() so physics stays stable.
+// Runs at execution order -10 so AimAtMouse() sets the player's Y rotation before
+// PlayerFeelController reads it for the body tilt. SpeedMultiplier is set externally by PlayerFeelController.
 [DefaultExecutionOrder(-10)] // Must run before PlayerFeelController so AimAtMouse sets Y before the tilt reads it
 public class PlayerMovement : MonoBehaviour
 {

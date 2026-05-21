@@ -43,13 +43,13 @@ public class PickupSpawner : MonoBehaviour
     {
         if (_pickupPrefabs.Length == 0) return;
 
-        int index = Random.Range(0, _pickupPrefabs.Length);
+        int randomPickupIndex = Random.Range(0, _pickupPrefabs.Length);
         Vector3 spawnPos = GetSpawnPosition();
 
         if (_spawnWarningParticlePrefab != null)
-            StartCoroutine(SpawnWithWarning(spawnPos, index));
+            StartCoroutine(SpawnWithWarning(spawnPos, randomPickupIndex));
         else
-            Instantiate(_pickupPrefabs[index], spawnPos, Quaternion.identity);
+            Instantiate(_pickupPrefabs[randomPickupIndex], spawnPos, Quaternion.identity);
     }
 
     private IEnumerator SpawnWithWarning(Vector3 spawnPos, int pickupIndex)
@@ -84,14 +84,14 @@ public class PickupSpawner : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
-        Vector3 o = transform.position;
-        Vector3 tl = o + new Vector3(-_spawnHalfX, 0f,  _spawnHalfZ);
-        Vector3 tr = o + new Vector3( _spawnHalfX, 0f,  _spawnHalfZ);
-        Vector3 br = o + new Vector3( _spawnHalfX, 0f, -_spawnHalfZ);
-        Vector3 bl = o + new Vector3(-_spawnHalfX, 0f, -_spawnHalfZ);
-        Gizmos.DrawLine(tl, tr);
-        Gizmos.DrawLine(tr, br);
-        Gizmos.DrawLine(br, bl);
-        Gizmos.DrawLine(bl, tl);
+        Vector3 center      = transform.position;
+        Vector3 topLeft     = center + new Vector3(-_spawnHalfX, 0f,  _spawnHalfZ);
+        Vector3 topRight    = center + new Vector3( _spawnHalfX, 0f,  _spawnHalfZ);
+        Vector3 bottomRight = center + new Vector3( _spawnHalfX, 0f, -_spawnHalfZ);
+        Vector3 bottomLeft  = center + new Vector3(-_spawnHalfX, 0f, -_spawnHalfZ);
+        Gizmos.DrawLine(topLeft,     topRight);
+        Gizmos.DrawLine(topRight,    bottomRight);
+        Gizmos.DrawLine(bottomRight, bottomLeft);
+        Gizmos.DrawLine(bottomLeft,  topLeft);
     }
 }

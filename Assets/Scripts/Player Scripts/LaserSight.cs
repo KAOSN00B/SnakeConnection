@@ -1,5 +1,8 @@
 using UnityEngine;
 
+// Draws a LineRenderer laser from _firePoint forward, stopping at the first physics hit.
+// Layers listed in _excludeLayers (e.g. the player's own collider) are ignored so the
+// beam does not immediately stop at the player's feet.
 [ExecuteInEditMode]
 public class LaserSight : MonoBehaviour
 {
@@ -47,8 +50,8 @@ public class LaserSight : MonoBehaviour
         Vector3 direction = _firePoint != null ? _firePoint.forward : transform.forward;
 
         // Use a raycast that ignores specific layers (like the player itself)
-        Vector3 endPos = Physics.Raycast(startPos, direction, out RaycastHit hit, _laserLength, ~_excludeLayers)
-            ? hit.point
+        Vector3 endPos = Physics.Raycast(startPos, direction, out RaycastHit raycastHit, _laserLength, ~_excludeLayers)
+            ? raycastHit.point
             : startPos + direction * _laserLength;
 
         _lineRenderer.SetPosition(0, startPos);

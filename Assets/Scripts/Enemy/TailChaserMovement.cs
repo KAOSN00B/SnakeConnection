@@ -38,9 +38,9 @@ public class TailChaserMovement : MonoBehaviour
         }
         if (_target == null) return;
 
-        Vector3 flat = _target.position - transform.position;
-        flat.y = 0f;
-        _directionToTarget = flat.normalized;
+        Vector3 flatDirection = _target.position - transform.position;
+        flatDirection.y = 0f;
+        _directionToTarget = flatDirection.normalized;
 
         FaceTarget();
     }

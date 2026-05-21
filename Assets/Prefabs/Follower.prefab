@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 5834209212977056511}
   - component: {fileID: 4508512622294439786}
   - component: {fileID: -4722782574440217263}
+  - component: {fileID: -6778308124380774958}
   m_Layer: 7
   m_Name: Follower
   m_TagString: Follower
@@ -191,6 +192,25 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 116
   m_CollisionDetection: 0
+--- !u!114 &-6778308124380774958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1457940386894297289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d57cb3881fcad314ebdca6931bd17570, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FolloweAttack
+  _attackRange: 10
+  _fireRate: 1
+  _bulletSpeed: 20
+  _bulletLifetime: 3
+  _targetRefreshInterval: 0.2
+  _firePoint: {fileID: 926194416470187031}
+  _bulletPrefab: {fileID: 4642965890253812081, guid: c9b9c9a5eadd2fa41807465cfa37f8a7, type: 3}
 --- !u!1 &7254849274372535369
 GameObject:
   m_ObjectHideFlags: 0

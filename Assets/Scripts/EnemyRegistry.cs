@@ -23,13 +23,13 @@ public static class EnemyRegistry
     public static Transform GetNearest(Vector3 from, float maxRangeSq)
     {
         Transform nearest = null;
-        float nearestSq = maxRangeSq;
+        float nearestSquaredDistance = maxRangeSq;
 
         for (int i = _active.Count - 1; i >= 0; i--)
         {
             if (_active[i] == null) { _active.RemoveAt(i); continue; }
-            float sq = (_active[i].position - from).sqrMagnitude;
-            if (sq < nearestSq) { nearestSq = sq; nearest = _active[i]; }
+            float squaredDistance = (_active[i].position - from).sqrMagnitude;
+            if (squaredDistance < nearestSquaredDistance) { nearestSquaredDistance = squaredDistance; nearest = _active[i]; }
         }
 
         return nearest;

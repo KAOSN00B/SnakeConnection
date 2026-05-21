@@ -238,11 +238,11 @@ public class PlayerFeelController : MonoBehaviour
     {
         _gameTimer += Time.deltaTime;
 
-        // t = 0 at game start, t = 1 when _survivalDuration seconds have passed
-        float t = Mathf.Clamp01(_gameTimer / _survivalDuration);
+        // survivalProgress = 0 at game start, 1 when _survivalDuration seconds have passed
+        float survivalProgress = Mathf.Clamp01(_gameTimer / _survivalDuration);
 
-        UpdateCamera(t);
-        UpdateSpeedEscalation(t);
+        UpdateCamera(survivalProgress);
+        UpdateSpeedEscalation(survivalProgress);
         UpdateBodyTilt();       // Also calls CheckDirectionChangeSpike internally
         UpdateTrail();
         UpdatePanicVignette();
@@ -278,11 +278,11 @@ public class PlayerFeelController : MonoBehaviour
     {
         // Put the LineRenderer on its own child so it doesn't interfere with any other
         // components on the player object
-        var trailGO = new GameObject("PlayerTrail");
-        trailGO.transform.SetParent(transform);
-        trailGO.transform.localPosition = Vector3.zero;
+        var trailObject = new GameObject("PlayerTrail");
+        trailObject.transform.SetParent(transform);
+        trailObject.transform.localPosition = Vector3.zero;
 
-        _trail = trailGO.AddComponent<LineRenderer>();
+        _trail = trailObject.AddComponent<LineRenderer>();
         _trail.useWorldSpace        = true;
         _trail.startWidth           = _trailStartWidth;
         _trail.endWidth             = 0f;   // Taper to a point at the oldest (tail) end
@@ -293,8 +293,8 @@ public class PlayerFeelController : MonoBehaviour
 
         // Sprites/Default supports vertex colors and looks neon without a custom shader.
         // Swap this for an additive shader if you want it to glow through other geometry.
-        var mat = new Material(Shader.Find("Sprites/Default"));
-        _trail.material = mat;
+        var trailMaterial = new Material(Shader.Find("Sprites/Default"));
+        _trail.material = trailMaterial;
 
         // Build the fade gradient ONCE and cache it.
         // The tail (index 0, oldest position) is fully transparent.
@@ -321,7 +321,7 @@ public class PlayerFeelController : MonoBehaviour
     // CAMERA FEEL
     // =====================================================================
 
-    private void UpdateCamera(float t)
+    private void UpdateCamera(float survivalProgress)
     {
         if (_moveCamera == null) return;
 
@@ -335,8 +335,8 @@ public class PlayerFeelController : MonoBehaviour
         // --- Gradual zoom-out ---
         // We express this as a DELTA on top of MoveCamera's base Y offset, starting at 0.
         // That way MoveCamera's serialized offset is still the source of truth for the home position.
-        // At t=0 this adds 0; at t=1 it adds (_cameraMaxY - _cameraStartY) units.
-        float deltaY = Mathf.Lerp(0f, _cameraMaxY - _cameraStartY, t);
+        // At survivalProgress=0 this adds 0; at survivalProgress=1 it adds (_cameraMaxY - _cameraStartY) units.
+        float deltaY = Mathf.Lerp(0f, _cameraMaxY - _cameraStartY, survivalProgress);
 
         // Combine the two effects: XZ nudge forward, Y creep upward
         Vector3 targetDelta = new Vector3(forwardNudge.x, deltaY, forwardNudge.z);
@@ -353,13 +353,13 @@ public class PlayerFeelController : MonoBehaviour
     // SPEED ESCALATION
     // =====================================================================
 
-    private void UpdateSpeedEscalation(float t)
+    private void UpdateSpeedEscalation(float survivalProgress)
     {
         if (_playerMovement == null || _isSpiking) return;
 
         // Ramp the speed multiplier silently in the background.
         // The player feels faster without being told — it's a reward for surviving.
-        _playerMovement.SpeedMultiplier = Mathf.Lerp(1f, _maxSpeedMultiplier, t);
+        _playerMovement.SpeedMultiplier = Mathf.Lerp(1f, _maxSpeedMultiplier, survivalProgress);
 
         // AUDIO: Gradually shift the pitch of any movement sounds here
         // AudioManager.Instance?.SetPitch("FootstepLoop", Mathf.Lerp(1f, 1.2f, t));

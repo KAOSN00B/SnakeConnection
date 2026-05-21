@@ -1,5 +1,8 @@
 using UnityEngine;
 
+// Singleton that configures Physics layer collision rules on Start.
+// All friendly-fire rules are centralized here rather than scattered across
+// individual movement or attack scripts.
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;

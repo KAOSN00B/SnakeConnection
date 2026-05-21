@@ -1,5 +1,7 @@
 using UnityEngine;
 
+// Follower auto-attack: periodically finds the nearest enemy within _attackRange via EnemyRegistry,
+// faces them, and fires on cooldown. Rotates toward movement direction when no target is in range.
 public class FolloweAttack : MonoBehaviour
 {
     [SerializeField] private float _attackRange = 10f;
@@ -41,11 +43,11 @@ public class FolloweAttack : MonoBehaviour
 
     private void FaceTarget()
     {
-        Vector3 dir = _enemyTarget.position - transform.position;
-        dir.y = 0f;
-        if (dir.sqrMagnitude > 0.001f)
+        Vector3 directionToEnemy = _enemyTarget.position - transform.position;
+        directionToEnemy.y = 0f;
+        if (directionToEnemy.sqrMagnitude > 0.001f)
         {
-            Quaternion targetRot = Quaternion.LookRotation(dir);
+            Quaternion targetRot = Quaternion.LookRotation(directionToEnemy);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 10f);
         }
     }
@@ -74,8 +76,8 @@ public class FolloweAttack : MonoBehaviour
         if (_bulletPrefab == null || _enemyTarget == null) return;
 
         Vector3 targetPos = _enemyTarget.position;
-        if (_enemyTarget.TryGetComponent<Collider>(out var col))
-            targetPos = col.bounds.center;
+        if (_enemyTarget.TryGetComponent<Collider>(out var enemyCollider))
+            targetPos = enemyCollider.bounds.center;
         else
             targetPos += Vector3.up * 1f;
 

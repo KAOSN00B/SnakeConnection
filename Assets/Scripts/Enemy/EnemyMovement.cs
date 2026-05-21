@@ -1,5 +1,8 @@
 using UnityEngine;
 
+// Basic melee enemy AI: moves toward the nearest Follower, or the Player if no followers exist.
+// Registers with EnemyRegistry on enable so FollowerAttack scripts can find it efficiently.
+// Target is refreshed on a timer to avoid a full follower list walk every physics tick.
 public class EnemyMovement : MonoBehaviour
 {
     [SerializeField] private float _speed = 7f;
@@ -42,14 +45,14 @@ public class EnemyMovement : MonoBehaviour
         if (_target == null) return;
 
         // Compute direction fresh every physics tick — no dependency on Update having run first
-        Vector3 flat = _target.position - transform.position;
-        flat.y = 0f;
+        Vector3 flatDirection = _target.position - transform.position;
+        flatDirection.y = 0f;
 
-        if (flat.sqrMagnitude < 0.01f) return;
+        if (flatDirection.sqrMagnitude < 0.01f) return;
 
-        Vector3 dir = flat.normalized;
-        transform.position += dir * _speed * Time.fixedDeltaTime;
-        transform.rotation = Quaternion.LookRotation(dir);
+        Vector3 moveDirection = flatDirection.normalized;
+        transform.position += moveDirection * _speed * Time.fixedDeltaTime;
+        transform.rotation = Quaternion.LookRotation(moveDirection);
         }
 
         private void UpdateTarget()

@@ -39,26 +39,26 @@ public class BulletPool : MonoBehaviour
     public Bullet Get(GameObject prefab, Vector3 position, Quaternion rotation,
                       Vector3 velocity, float lifetime, GameObject owner = null)
     {
-        int key = prefab.GetHashCode();
-        if (!_pools.TryGetValue(key, out Stack<Bullet> stack))
+        int prefabKey = prefab.GetHashCode();
+        if (!_pools.TryGetValue(prefabKey, out Stack<Bullet> bulletStack))
         {
-            stack = new Stack<Bullet>(16);
-            _pools[key] = stack;
+            bulletStack = new Stack<Bullet>(16);
+            _pools[prefabKey] = bulletStack;
         }
 
         Bullet bullet = null;
-        while (stack.Count > 0)
+        while (bulletStack.Count > 0)
         {
-            bullet = stack.Pop();
+            bullet = bulletStack.Pop();
             if (bullet != null) break; // discard nulls left by scene reload
             bullet = null;
         }
 
         if (bullet == null)
         {
-            GameObject go = Instantiate(prefab, position, rotation);
-            bullet = go.GetComponent<Bullet>();
-            bullet.AssignPoolKey(key);
+            GameObject newBulletObject = Instantiate(prefab, position, rotation);
+            bullet = newBulletObject.GetComponent<Bullet>();
+            bullet.AssignPoolKey(prefabKey);
         }
         else
         {

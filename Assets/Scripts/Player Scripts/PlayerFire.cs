@@ -1,5 +1,8 @@
 using UnityEngine;
 
+// Handles player shooting: hold LMB to auto-fire at the rate set by _fireRate.
+// Fires along the laser sight direction (firePoint.forward flattened to XZ) and
+// uses BulletPool to avoid per-shot memory allocations.
 public class PlayerFire : MonoBehaviour
 {
     [SerializeField] private Transform _firePoint;
@@ -30,13 +33,13 @@ public class PlayerFire : MonoBehaviour
     {
         Vector3 spawnPos = _firePoint != null ? _firePoint.position : transform.position;
         Quaternion spawnRot = _firePoint != null ? _firePoint.rotation : transform.rotation;
-        Vector3 fireDir = GetFireDirection();
+        Vector3 fireDirection = GetFireDirection();
 
         BulletPool.Instance.Get(
             _bulletPrefab,
             spawnPos,
             spawnRot,
-            fireDir * _bulletSpeed,
+            fireDirection * _bulletSpeed,
             _bulletLifetime,
             gameObject
         );

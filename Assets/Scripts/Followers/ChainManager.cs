@@ -118,12 +118,12 @@ public class ChainManager : MonoBehaviour
     public Transform GetNearestFollower(Vector3 fromPosition)
     {
         Transform nearest = null;
-        float nearestSq = float.MaxValue;
+        float nearestSquaredDistance = float.MaxValue;
 
         foreach (FollowerMovement follower in _followers)
         {
-            float sq = (fromPosition - follower.transform.position).sqrMagnitude;
-            if (sq < nearestSq) { nearestSq = sq; nearest = follower.transform; }
+            float squaredDistance = (fromPosition - follower.transform.position).sqrMagnitude;
+            if (squaredDistance < nearestSquaredDistance) { nearestSquaredDistance = squaredDistance; nearest = follower.transform; }
         }
 
         return nearest;

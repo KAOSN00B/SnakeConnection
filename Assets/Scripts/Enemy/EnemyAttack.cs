@@ -1,5 +1,8 @@
 using UnityEngine;
 
+// Ranged enemy AI: finds the nearest Player or Follower within attackRange, faces them,
+// and fires at the rate set by fireRate. Target is refreshed on a timer rather than every
+// frame to avoid an OverlapSphere call every Update tick.
 public class EnemyAttack : MonoBehaviour
 {
     [SerializeField] private float attackRange = 10f;
@@ -45,20 +48,20 @@ public class EnemyAttack : MonoBehaviour
         int count = Physics.OverlapSphereNonAlloc(transform.position, attackRange, _overlapBuffer);
 
         Transform nearest = null;
-        float nearestSq = float.MaxValue;
-        float rangeSq = attackRange * attackRange;
+        float nearestSquaredDistance = float.MaxValue;
+        float squaredRange = attackRange * attackRange;
 
         for (int i = 0; i < count; i++)
         {
-            Collider hit = _overlapBuffer[i];
-            if (!hit.CompareTag("Player") && !hit.CompareTag("Follower")) continue;
+            Collider candidate = _overlapBuffer[i];
+            if (!candidate.CompareTag("Player") && !candidate.CompareTag("Follower")) continue;
 
             // Squared distance — avoids a sqrt per candidate
-            float sq = (transform.position - hit.transform.position).sqrMagnitude;
-            if (sq < nearestSq && sq <= rangeSq)
+            float squaredDistance = (transform.position - candidate.transform.position).sqrMagnitude;
+            if (squaredDistance < nearestSquaredDistance && squaredDistance <= squaredRange)
             {
-                nearestSq = sq;
-                nearest = hit.transform;
+                nearestSquaredDistance = squaredDistance;
+                nearest = candidate.transform;
             }
         }
 
@@ -67,10 +70,10 @@ public class EnemyAttack : MonoBehaviour
 
     private void FaceTarget()
     {
-        Vector3 dir = _target.position - transform.position;
-        dir.y = 0f;
-        if (dir != Vector3.zero)
-            transform.rotation = Quaternion.LookRotation(dir);
+        Vector3 directionToTarget = _target.position - transform.position;
+        directionToTarget.y = 0f;
+        if (directionToTarget != Vector3.zero)
+            transform.rotation = Quaternion.LookRotation(directionToTarget);
     }
 
     private void HandleFiring()

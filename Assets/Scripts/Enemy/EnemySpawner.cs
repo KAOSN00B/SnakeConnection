@@ -143,14 +143,14 @@ public class EnemySpawner : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        Vector3 o = transform.position;
-        Vector3 tl = o + new Vector3(-_spawnHalfX, 0f,  _spawnHalfZ);
-        Vector3 tr = o + new Vector3( _spawnHalfX, 0f,  _spawnHalfZ);
-        Vector3 br = o + new Vector3( _spawnHalfX, 0f, -_spawnHalfZ);
-        Vector3 bl = o + new Vector3(-_spawnHalfX, 0f, -_spawnHalfZ);
-        Gizmos.DrawLine(tl, tr);
-        Gizmos.DrawLine(tr, br);
-        Gizmos.DrawLine(br, bl);
-        Gizmos.DrawLine(bl, tl);
+        Vector3 center      = transform.position;
+        Vector3 topLeft     = center + new Vector3(-_spawnHalfX, 0f,  _spawnHalfZ);
+        Vector3 topRight    = center + new Vector3( _spawnHalfX, 0f,  _spawnHalfZ);
+        Vector3 bottomRight = center + new Vector3( _spawnHalfX, 0f, -_spawnHalfZ);
+        Vector3 bottomLeft  = center + new Vector3(-_spawnHalfX, 0f, -_spawnHalfZ);
+        Gizmos.DrawLine(topLeft,     topRight);
+        Gizmos.DrawLine(topRight,    bottomRight);
+        Gizmos.DrawLine(bottomRight, bottomLeft);
+        Gizmos.DrawLine(bottomLeft,  topLeft);
     }
 }

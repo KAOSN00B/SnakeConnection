@@ -38,7 +38,7 @@ public class FollowerDeathFeedback : MonoBehaviour
         if (_deathSound != null)
             AudioSource.PlayClipAtPoint(_deathSound, transform.position);
 
-        for (int f = 0; f < _flashCount; f++)
+        for (int flashIndex = 0; flashIndex < _flashCount; flashIndex++)
         {
             for (int i = 0; i < renderers.Length; i++)
                 renderers[i].materials = flashMats[i];

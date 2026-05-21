@@ -255,3 +255,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDeathFeedback
   _deathParticlePrefab: {fileID: 1277154925287174, guid: 3b517eddec185dd4a830743a742ad00b, type: 3}
+  _fallbackDestroyDelay: 3

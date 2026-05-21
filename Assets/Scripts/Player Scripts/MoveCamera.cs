@@ -1,6 +1,11 @@
 using System.Collections;
 using UnityEngine;
 
+// Camera follow script that tracks a target transform using a layered offset system:
+//   - 'offset'       : base position set in the Inspector — the camera's home position
+//   - _dynamicOffset : runtime delta set by PlayerFeelController each frame (look-ahead + zoom-out)
+//   - _shakeOffset   : random XZ noise added during screen shake events
+// All three are summed each frame in FollowTarget().
 public class MoveCamera : MonoBehaviour
 {
     [SerializeField] private Transform cameraPosition;
