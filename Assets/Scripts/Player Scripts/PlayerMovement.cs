@@ -23,6 +23,9 @@ public class PlayerMovement : MonoBehaviour
     private Camera _mainCamera;
     private Animator _animator;
 
+    private static readonly int MoveXHash = Animator.StringToHash("MoveX");
+    private static readonly int MoveZHash = Animator.StringToHash("MoveZ");
+
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
@@ -43,10 +46,19 @@ public class PlayerMovement : MonoBehaviour
         GatherInput();
         AimAtMouse();
 
-        if (_animator != null)
-        {
-            _animator.speed = SpeedMultiplier;
-        }
+        UpdateAnimation();
+    }
+
+    private void UpdateAnimation()
+    {
+        if (_animator == null) return;
+
+        _animator.speed = SpeedMultiplier;
+
+        // Calculate movement relative to facing direction for strafing
+        Vector3 localMove = transform.InverseTransformDirection(_moveDirection);
+        _animator.SetFloat(MoveXHash, localMove.x);
+        _animator.SetFloat(MoveZHash, localMove.z);
     }
 
     void FixedUpdate()

@@ -23,15 +23,12 @@ public class PlayerHealthUI : MonoBehaviour
             _playerHealth.OnHealthChanged -= HandleHealthChanged;
 
         GameObject player = GameObject.FindWithTag("Player");
-        Debug.Log($"[HealthUI] player found: {player != null}");
         if (player == null) return;
 
         _playerHealth = player.GetComponentInChildren<Health>();
-        Debug.Log($"[HealthUI] health found: {_playerHealth != null}");
         if (_playerHealth == null) return;
 
         _playerHealth.OnHealthChanged += HandleHealthChanged;
-        Debug.Log($"[HealthUI] slider ref: {_healthSlider != null} | health: {_playerHealth.CurrentHealth}/{_playerHealth.MaxHealth}");
 
         if (_healthSlider == null) return;
 
@@ -42,7 +39,6 @@ public class PlayerHealthUI : MonoBehaviour
 
     private void HandleHealthChanged(int current, int max)
     {
-        Debug.Log($"[HealthUI] HandleHealthChanged called: {current}/{max} | slider null: {_healthSlider == null}");
         if (_healthSlider == null) return;
         _healthSlider.value = current;
     }

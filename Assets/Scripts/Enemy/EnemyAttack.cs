@@ -10,6 +10,7 @@ public class EnemyAttack : MonoBehaviour
 
     [SerializeField] private Transform _firePoint;
     [SerializeField] private GameObject _bulletPrefab;
+    private Animator _animator;
 
     // Static buffer shared across all EnemyAttack instances — NonAlloc writes into this
     private static readonly Collider[] _overlapBuffer = new Collider[32];
@@ -21,6 +22,7 @@ public class EnemyAttack : MonoBehaviour
     void Start()
     {
         _fireCooldown = 1f / fireRate;
+        _animator = GetComponentInChildren<Animator>();
     }
 
     void Update()

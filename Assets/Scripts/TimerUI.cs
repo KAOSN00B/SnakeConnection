@@ -1,23 +1,24 @@
+using TMPro;
 using UnityEngine;
 
 public class TimerUI : MonoBehaviour
 {
-    private string _timerText;
+    [SerializeField] private TextMeshProUGUI _timerText;
 
-    void Start()
+    private float _timer;
+
+    private void Update()
     {
-        
+        _timer += Time.deltaTime;
+
+        int minutes = Mathf.FloorToInt(_timer / 60f);
+        int seconds = Mathf.FloorToInt(_timer % 60f);
+
+        _timerText.text = $"Time:{minutes:00}:{seconds:00}";
     }
 
-    // Update is called once per frame
-    void Update()
+    public float GetElapsedTime()
     {
-        
-    }
-
-    private void DisplayText()
-    {
-        _timerText = $"Time: {Time.timeSinceLevelLoad:F2} seconds";
-        Debug.Log(_timerText);
+        return _timer;
     }
 }

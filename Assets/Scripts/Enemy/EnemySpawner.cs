@@ -9,8 +9,15 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float _spawnHalfX = 15f;   // east / west walls
     [SerializeField] private float _spawnHalfZ = 15f;   // north / south walls
 
-    [Header("Debug")]
-    [SerializeField] private bool _debugSpawns = true;
+    [Header("Enemy Cap")]
+    [Tooltip("How many enemies are allowed alive at game start.")]
+    [SerializeField] private int _initialEnemyLimit = 5;
+    [Tooltip("Hard ceiling — the cap will never exceed this even late game.")]
+    [SerializeField] private int _maximumEnemyLimit = 35;
+    [Tooltip("How many extra enemies are added each interval.")]
+    [SerializeField] private int _enemyLimitIncreaseAmount = 5;
+    [Tooltip("Seconds between each cap increase.")]
+    [SerializeField] private float _enemyLimitIncreaseInterval = 20f;
 
     [Header("Spawn Timing")]
     [SerializeField] private float _spawnInterval = 3f;
@@ -51,6 +58,11 @@ public class EnemySpawner : MonoBehaviour
     {
         if (_enemyPrefabs.Length == 0) return;
 
+        // Skip the spawn entirely if we're already at the current cap.
+        // This prevents runaway enemy counts from tanking the frame rate while
+        // still allowing the cap to grow gradually as the session goes on.
+        if (EnemyRegistry.Count >= GetCurrentEnemyLimit()) return;
+
         // Re-find player if the cached reference was lost
         if (_playerTransform == null)
         {
@@ -62,6 +74,16 @@ public class EnemySpawner : MonoBehaviour
         int randomEnemyIndex = Random.Range(0, maxEnemyIndex + 1);
 
         Instantiate(_enemyPrefabs[randomEnemyIndex], GetSpawnPosition(), Quaternion.identity);
+    }
+
+    // Calculates how many enemies are allowed alive right now.
+    // Starts low for early-game fairness, increases every interval, hard-capped at maximum.
+    // This keeps escalation controlled and frame rate protected even in long sessions.
+    private int GetCurrentEnemyLimit()
+    {
+        int increaseSteps = Mathf.FloorToInt(_gameTimer / _enemyLimitIncreaseInterval);
+        int currentLimit = _initialEnemyLimit + increaseSteps * _enemyLimitIncreaseAmount;
+        return Mathf.Min(currentLimit, _maximumEnemyLimit);
     }
 
     private int GetHighestUnlockedEnemyIndex()
@@ -89,9 +111,6 @@ public class EnemySpawner : MonoBehaviour
         }
 
         Vector3 spawnPos = new Vector3(center.x + x, transform.position.y, center.z + z);
-
-        if (_debugSpawns)
-            Debug.Log($"[EnemySpawner] Center: {center} | Side: {sideName} | SpawnPos: {spawnPos}");
 
         return spawnPos;
     }

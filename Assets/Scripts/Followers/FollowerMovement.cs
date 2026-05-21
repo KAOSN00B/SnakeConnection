@@ -12,6 +12,9 @@ public class FollowerMovement : MonoBehaviour
     private Animator _animator;
     private PlayerMovement _player;
 
+    private static readonly int MoveXHash = Animator.StringToHash("MoveX");
+    private static readonly int MoveZHash = Animator.StringToHash("MoveZ");
+
     private void Awake()
     {
         _attack = GetComponent<FolloweAttack>();
@@ -40,14 +43,34 @@ public class FollowerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         if (ChainManager.Instance == null) return;
+        
+        Vector3 lastPos = transform.position;
         UpdatePosition();
+        
+        UpdateAnimation(lastPos);
+    }
 
-        if (_animator != null)
+    private void UpdateAnimation(Vector3 lastPos)
+    {
+        if (_animator == null) return;
+
+        // Scale animator speed with player speed escalation
+        float multiplier = (_player != null) ? _player.SpeedMultiplier : 1f;
+        _animator.speed = multiplier;
+
+        // Calculate actual move direction this frame
+        Vector3 moveDelta = transform.position - lastPos;
+        if (moveDelta.sqrMagnitude > 0.0001f)
         {
-            // If we can't find the player or they don't have a multiplier, default to 1.
-            float speed = (_player != null) ? _player.SpeedMultiplier : 1f;
-            // Baseline 1.0 speed for followers, scaled by the game's speed escalation.
-            _animator.speed = speed;
+            Vector3 moveDir = moveDelta.normalized;
+            Vector3 localMove = transform.InverseTransformDirection(moveDir);
+            _animator.SetFloat(MoveXHash, localMove.x);
+            _animator.SetFloat(MoveZHash, localMove.z);
+        }
+        else
+        {
+            _animator.SetFloat(MoveXHash, 0f);
+            _animator.SetFloat(MoveZHash, 0f);
         }
     }
 

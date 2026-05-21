@@ -50,15 +50,10 @@ public class EnemyMovement : MonoBehaviour
         Vector3 dir = flat.normalized;
         transform.position += dir * _speed * Time.fixedDeltaTime;
         transform.rotation = Quaternion.LookRotation(dir);
+        }
 
-        if (_animator != null)
+        private void UpdateTarget()
         {
-            _animator.speed = _speed / 2.5f;
-        }
-        }
-
-    private void UpdateTarget()
-    {
         if (ChainManager.Instance != null && ChainManager.Instance.HasFollowers)
             _target = ChainManager.Instance.GetNearestFollower(transform.position);
         else
