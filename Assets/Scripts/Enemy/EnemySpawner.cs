@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
@@ -27,6 +28,12 @@ public class EnemySpawner : MonoBehaviour
     [Header("Enemy Unlock Times")]
     [SerializeField] private float _enemyType1UnlockTime = 30f;
     [SerializeField] private float _enemyType2UnlockTime = 60f;
+
+    [Header("Spawn Warning")]
+    [Tooltip("Optional particle prefab that plays at the spawn point before the enemy appears. Leave empty to spawn instantly.")]
+    [SerializeField] private GameObject _spawnWarningParticlePrefab;
+    [Tooltip("How many seconds the warning plays before the enemy actually appears.")]
+    [SerializeField] private float _spawnWarningDuration = 3f;
 
     private float _gameTimer;
     private float _spawnTimer;
@@ -72,8 +79,27 @@ public class EnemySpawner : MonoBehaviour
 
         int maxEnemyIndex = GetHighestUnlockedEnemyIndex();
         int randomEnemyIndex = Random.Range(0, maxEnemyIndex + 1);
+        Vector3 spawnPos = GetSpawnPosition();
 
-        Instantiate(_enemyPrefabs[randomEnemyIndex], GetSpawnPosition(), Quaternion.identity);
+        // If a warning particle is assigned, telegraph the spawn first then delay the enemy.
+        // Otherwise spawn immediately so the game works without any particle set up.
+        if (_spawnWarningParticlePrefab != null)
+            StartCoroutine(SpawnWithWarning(spawnPos, randomEnemyIndex));
+        else
+            Instantiate(_enemyPrefabs[randomEnemyIndex], spawnPos, Quaternion.identity);
+    }
+
+    // Shows a warning particle at the spawn point, waits, then drops the enemy in.
+    // Gives the player a chance to react before the enemy appears.
+    private IEnumerator SpawnWithWarning(Vector3 spawnPos, int enemyIndex)
+    {
+        GameObject warning = Instantiate(_spawnWarningParticlePrefab, spawnPos, Quaternion.identity);
+        // Auto-destroy the particle so it doesn't linger if its duration is shorter than _spawnWarningDuration
+        Destroy(warning, _spawnWarningDuration);
+
+        yield return new WaitForSeconds(_spawnWarningDuration);
+
+        Instantiate(_enemyPrefabs[enemyIndex], spawnPos, Quaternion.identity);
     }
 
     // Calculates how many enemies are allowed alive right now.
@@ -101,13 +127,12 @@ public class EnemySpawner : MonoBehaviour
         int side = Random.Range(0, 4);
 
         float x, z;
-        string sideName;
         switch (side)
         {
-            case 0:  x = Random.Range(-_spawnHalfX, _spawnHalfX); z =  _spawnHalfZ; sideName = "North"; break;
-            case 1:  x = Random.Range(-_spawnHalfX, _spawnHalfX); z = -_spawnHalfZ; sideName = "South"; break;
-            case 2:  x = -_spawnHalfX; z = Random.Range(-_spawnHalfZ, _spawnHalfZ); sideName = "West";  break;
-            default: x =  _spawnHalfX; z = Random.Range(-_spawnHalfZ, _spawnHalfZ); sideName = "East";  break;
+            case 0:  x = Random.Range(-_spawnHalfX, _spawnHalfX); z =  _spawnHalfZ; break; // North
+            case 1:  x = Random.Range(-_spawnHalfX, _spawnHalfX); z = -_spawnHalfZ; break; // South
+            case 2:  x = -_spawnHalfX; z = Random.Range(-_spawnHalfZ, _spawnHalfZ); break; // West
+            default: x =  _spawnHalfX; z = Random.Range(-_spawnHalfZ, _spawnHalfZ); break; // East
         }
 
         Vector3 spawnPos = new Vector3(center.x + x, transform.position.y, center.z + z);

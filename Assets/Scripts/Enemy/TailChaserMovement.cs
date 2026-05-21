@@ -82,16 +82,18 @@ public class TailChaserMovement : MonoBehaviour
     private void OnCollisionStay(Collision collision) => ProcessContact(collision.gameObject);
     private void OnTriggerStay(Collider other) => ProcessContact(other.gameObject);
 
-    private void ProcessContact(GameObject target)
+    private void ProcessContact(GameObject hitObject)
     {
-        if (!target.CompareTag("Player") && !target.CompareTag("Follower")) return;
-        if (Time.time < _nextAttackTime) return;
+        // Walk up the hierarchy — the collider is often on a child object, not the root
+        // where the Health component and tag actually live
+        IDamageable damageable = hitObject.GetComponentInParent<IDamageable>();
+        if (damageable == null) return;
 
-        IDamageable damageable = target.GetComponent<IDamageable>();
-        if (damageable != null)
-        {
-            damageable.TakeDamage(_damage);
-            _nextAttackTime = Time.time + _attackCooldown;
-        }
+        GameObject damageableObject = ((MonoBehaviour)damageable).gameObject;
+        if (!damageableObject.CompareTag("Player") && !damageableObject.CompareTag("Follower")) return;
+
+        if (Time.time < _nextAttackTime) return;
+        damageable.TakeDamage(_damage);
+        _nextAttackTime = Time.time + _attackCooldown;
     }
 }

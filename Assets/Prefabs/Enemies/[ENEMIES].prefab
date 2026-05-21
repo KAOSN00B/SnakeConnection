@@ -118,6 +118,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 2869009793988537621, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
+      propertyPath: _maxHealth
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 3260102674357125799, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -161,6 +165,18 @@ PrefabInstance:
     - target: {fileID: 4481486135024436488, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.103
+      objectReference: {fileID: 0}
+    - target: {fileID: 7455572023524628897, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
+      propertyPath: _speed
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7455572023524628897, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
+      propertyPath: _attackCooldown
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7455572023524628897, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
+      propertyPath: _targetRefreshInterval
+      value: 0.2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

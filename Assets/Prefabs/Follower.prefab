@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 8890118199897391301}
   - component: {fileID: -957367630519851214}
   - component: {fileID: 5834209212977056511}
-  - component: {fileID: -2407077579915456228}
   - component: {fileID: 4508512622294439786}
+  - component: {fileID: -4722782574440217263}
   m_Layer: 7
   m_Name: Follower
   m_TagString: Follower
@@ -133,6 +133,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FollowerMovement
   _rotationSpeed: 10
+  _contactRadius: 0.6
+  _contactDamageCooldown: 1
 --- !u!114 &5834209212977056511
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -145,26 +147,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf92dbc7ffe645948afdf045c76dff8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
-  _maxHealth: 2
---- !u!114 &-2407077579915456228
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1457940386894297289}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d57cb3881fcad314ebdca6931bd17570, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FolloweAttack
-  _attackRange: 10
-  _fireRate: 0.5
-  _bulletSpeed: 12
-  _bulletLifetime: 3
-  _targetRefreshInterval: 0.2
-  _firePoint: {fileID: 926194416470187031}
-  _bulletPrefab: {fileID: 4642965890253812081, guid: c9b9c9a5eadd2fa41807465cfa37f8a7, type: 3}
+  _maxHealth: 3
 --- !u!114 &4508512622294439786
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,6 +163,33 @@ MonoBehaviour:
   _flashCount: 3
   _flashDuration: 0.5
   _deathSound: {fileID: 0}
+--- !u!54 &-4722782574440217263
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1457940386894297289}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 116
+  m_CollisionDetection: 0
 --- !u!1 &7254849274372535369
 GameObject:
   m_ObjectHideFlags: 0
@@ -274,8 +284,29 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1401195396439946, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4821946356898183403}
   m_SourcePrefab: {fileID: 100100000, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+--- !u!1 &9085225351334151283 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1401195396439946, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+  m_PrefabInstance: {fileID: 9084268643758955513}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4821946356898183403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9085225351334151283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a665d3519bd8374e98187457890968d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitFlash
+  _flashDuration: 0.1
 --- !u!4 &9088175412486415295 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4047652858230854, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
