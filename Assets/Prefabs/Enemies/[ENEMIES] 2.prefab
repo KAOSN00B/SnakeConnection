@@ -168,7 +168,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7455572023524628897, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
       propertyPath: _speed
-      value: 5
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 7455572023524628897, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
       propertyPath: _damage
@@ -215,8 +215,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAttack
   attackRange: 20
-  fireRate: 2
-  bulletSpeed: 5
+  fireRate: 4
+  bulletSpeed: 10
   bulletLifetime: 5
   _targetRefreshInterval: 0.2
   _firePoint: {fileID: 2114674128497402412}

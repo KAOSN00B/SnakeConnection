@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1936215083695276
+--- !u!1 &8635865729742945720
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,47 +8,47 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4090337701645882}
-  - component: {fileID: 33203572086609964}
-  - component: {fileID: 23232356267682964}
-  - component: {fileID: 65632236761169524}
+  - component: {fileID: 7575968057463514577}
+  - component: {fileID: 3434467409555416153}
+  - component: {fileID: 7174627515632036664}
+  - component: {fileID: 1358264284672142853}
   m_Layer: 0
-  m_Name: SM_Env_Sidewalk_Raised_02
+  m_Name: ElecTrap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4090337701645882
+--- !u!4 &7575968057463514577
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1936215083695276}
+  m_GameObject: {fileID: 8635865729742945720}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.030925263, y: 1.732, z: 7.5392575}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &33203572086609964
+--- !u!33 &3434467409555416153
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1936215083695276}
-  m_Mesh: {fileID: 4300000, guid: 89ae3858749325c4e97dbc84b7023128, type: 3}
---- !u!23 &23232356267682964
+  m_GameObject: {fileID: 8635865729742945720}
+  m_Mesh: {fileID: 4300000, guid: 80d81d8b38af5e04499afa205ceb68b7, type: 3}
+--- !u!23 &7174627515632036664
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1936215083695276}
+  m_GameObject: {fileID: 8635865729742945720}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -91,24 +91,23 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &65632236761169524
-BoxCollider:
+--- !u!114 &1358264284672142853
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1936215083695276}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
+  m_GameObject: {fileID: 8635865729742945720}
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 5, y: 0.2930686, z: 5}
-  m_Center: {x: -2.5, y: 0.1465343, z: -2.5}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266d3c3d83511fe4a9b700677b62adc0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ElecTrap
+  _triggerRadius: 4.75
+  _damageRadius: 4.75
+  _lifetime: 10
+  _damage: 0
+  _stunDuration: 4
+  _flashInterval: 0.1
+  _electricityParticlePrefab: {fileID: 1319638081725528, guid: 2974555caa7a6704eb8f549d99367f35, type: 3}
+  _fallbackParticleDestroyDelay: 4.02

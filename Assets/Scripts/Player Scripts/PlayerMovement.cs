@@ -10,6 +10,9 @@ public class PlayerMovement : MonoBehaviour
     // Movement speed exposed in the Inspector — no drag/damping, velocity is set directly
     [SerializeField] private float _moveSpeed;
 
+    [Tooltip("Right stick must exceed this magnitude before controller aiming activates.")]
+    [SerializeField] private float _controllerDeadzone = 0.2f;
+
     // Set by PlayerFeelController each frame — 1.0 normally, ramps to 1.3 over 90 seconds,
     // briefly spikes higher on sharp direction changes
     public float SpeedMultiplier { get; set; } = 1f;
@@ -103,6 +106,19 @@ public class PlayerMovement : MonoBehaviour
 
     private void AimAtMouse()
     {
+        // Right stick takes priority over mouse when it's pushed past the deadzone
+        float rightX = Input.GetAxisRaw("RightStickX");
+        float rightY = Input.GetAxisRaw("RightStickY");
+
+        if (new Vector2(rightX, rightY).magnitude > _controllerDeadzone)
+        {
+            // Right stick Y is inverted on most controllers — negate it so up = forward
+            Vector3 aimDirection = new Vector3(rightX, 0f, -rightY).normalized;
+            transform.rotation = Quaternion.LookRotation(aimDirection);
+            return;
+        }
+
+        // Fall back to mouse aiming when no controller input
         Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
         Plane groundPlane = new Plane(Vector3.up, transform.position);
 

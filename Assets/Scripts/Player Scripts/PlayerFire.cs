@@ -13,6 +13,9 @@ public class PlayerFire : MonoBehaviour
     [SerializeField] private float _fireRate = 0.5f;
     [SerializeField] private float _bulletLifetime = 2f;
 
+    [Tooltip("Right stick must exceed this magnitude to auto-fire. Match the value in PlayerMovement.")]
+    [SerializeField] private float _controllerDeadzone = 0.2f;
+
     private float _nextFireTime = 0f;
 
     void Update()
@@ -22,7 +25,13 @@ public class PlayerFire : MonoBehaviour
 
     private void HandleFireInput()
     {
-        if (Input.GetKey(KeyCode.Mouse0) && Time.time >= _nextFireTime)
+        bool mouseFire = Input.GetKey(KeyCode.Mouse0);
+
+        float rightX = Input.GetAxisRaw("RightStickX");
+        float rightY = Input.GetAxisRaw("RightStickY");
+        bool controllerFire = new Vector2(rightX, rightY).magnitude > _controllerDeadzone;
+
+        if ((mouseFire || controllerFire) && Time.time >= _nextFireTime)
         {
             _nextFireTime = Time.time + _fireRate;
             Fire();

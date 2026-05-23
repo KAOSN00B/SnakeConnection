@@ -1,29 +1,35 @@
 using UnityEngine;
 
 // Attach to the Sparker follower prefab.
-// Places one ElecTrap at its own feet on a cooldown. Only one trap is active per
-// follower at a time — placing another is blocked until the current trap disappears
-// or triggers. After triggering, a shorter post-trigger cooldown applies.
+// Watches for enemies within _detectionRadius. When one gets close, drops an ElecTrap
+// at its own feet. Only one trap is active per follower at a time.
 public class ElectFollower : MonoBehaviour
 {
     [SerializeField] private GameObject _trapPrefab;
 
-    [Tooltip("Seconds between placing a new trap (normal cycle).")]
-    [SerializeField] private float _placementCooldown = 5f;
+    [Tooltip("How close an enemy must be before this follower drops a trap.")]
+    [SerializeField] private float _detectionRadius = 5f;
 
-    [Tooltip("Seconds to wait before placing a new trap after one was triggered.")]
+    [Tooltip("Seconds to wait before dropping another trap after one was triggered.")]
     [SerializeField] private float _postTriggerCooldown = 2f;
+
+    [Tooltip("Seconds to wait before dropping another trap after one expired naturally.")]
+    [SerializeField] private float _expiredCooldown = 5f;
 
     private GameObject _activeTrap;
     private float _cooldownTimer;
 
     private void Update()
     {
-        // Block placement while a trap is still alive on the field
+        // Block placement while a trap is already on the field
         if (_activeTrap != null) return;
 
         _cooldownTimer -= Time.deltaTime;
-        if (_cooldownTimer <= 0f)
+        if (_cooldownTimer > 0f) return;
+
+        // Only drop a trap when an enemy is actually nearby
+        float detectionRadiusSq = _detectionRadius * _detectionRadius;
+        if (EnemyRegistry.GetNearest(transform.position, detectionRadiusSq) != null)
             PlaceTrap();
     }
 
@@ -38,10 +44,16 @@ public class ElectFollower : MonoBehaviour
             trap.Initialize(this);
     }
 
-    // Called by ElecTrap when it deactivates — either triggered by an enemy or expired naturally
+    // Called by ElecTrap when it deactivates — triggered by an enemy or expired naturally
     public void OnTrapDeactivated(bool wasTriggered)
     {
         _activeTrap = null;
-        _cooldownTimer = wasTriggered ? _postTriggerCooldown : _placementCooldown;
+        _cooldownTimer = wasTriggered ? _postTriggerCooldown : _expiredCooldown;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, _detectionRadius);
     }
 }

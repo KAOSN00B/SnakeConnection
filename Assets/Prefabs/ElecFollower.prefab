@@ -49,7 +49,7 @@ GameObject:
   - component: {fileID: 4734399042050484296}
   - component: {fileID: 123412806884383436}
   - component: {fileID: 2110184093250606729}
-  - component: {fileID: 1945490121799739612}
+  - component: {fileID: 1327253555370173422}
   m_Layer: 7
   m_Name: ElecFollower
   m_TagString: Follower
@@ -352,7 +352,7 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
---- !u!114 &1945490121799739612
+--- !u!114 &1327253555370173422
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -361,19 +361,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 2932574195236302134}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2953ce1990843e448a57c44274a9fb00, type: 3}
+  m_Script: {fileID: 11500000, guid: 50260e683b230484f89c930125c238bb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BomberAttack
-  _attackRange: 20
-  _targetRefreshInterval: 0.2
-  _fireRate: 3
-  _firePoint: {fileID: 6895126279136975539}
-  _grenadePrefab: {fileID: 7960029958244628124, guid: 17bfdb852d2ac5a428539af5d421ef47, type: 3}
-  _arcHeight: 3
-  _lineWidth: 0.08
-  _arcLineMaterial: {fileID: 2100000, guid: 3a7b324f888e7694d9eab016992c2ec8, type: 2}
-  _arcLineResolution: 24
-  _arcLineDisplayDuration: 1
+  m_EditorClassIdentifier: Assembly-CSharp::ElectFollower
+  _trapPrefab: {fileID: 8635865729742945720, guid: eab49d2ac10c7684885fd138fd7cf598, type: 3}
+  _placementCooldown: 5
+  _postTriggerCooldown: 2
 --- !u!1001 &7405859401072994618
 PrefabInstance:
   m_ObjectHideFlags: 0
