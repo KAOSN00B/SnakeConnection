@@ -39,8 +39,10 @@ public class PlayerFeelController : MonoBehaviour
     [Header("Player Death")]
     [Tooltip("Particle prefab that plays at the player's position when they die.")]
     [SerializeField] private GameObject _deathExplosionPrefab;
-    [Tooltip("Fallback delay before reloading if no particle is assigned.")]
+    [Tooltip("Fallback delay before showing the game over screen if no particle is assigned.")]
     [SerializeField] private float _deathDelay = 2f;
+    [Tooltip("The Game Over panel — assign the inactive panel from the Canvas here.")]
+    [SerializeField] private GameOverUI _gameOverUI;
 
     [Header("References")]
     [Tooltip("The child GameObject that is the player's visual mesh. Tilt is applied here.")]
@@ -210,8 +212,12 @@ public class PlayerFeelController : MonoBehaviour
         if (_moveCamera == null)
             _moveCamera = FindAnyObjectByType<MoveCamera>();
 
+        // Auto-locate GameOverUI in the scene if not assigned
+        if (_gameOverUI == null)
+            _gameOverUI = FindAnyObjectByType<GameOverUI>(FindObjectsInactive.Include);
+
         // Try to connect post-processing (logs warnings if not found — non-fatal)
-        SetupPostProcessing();
+SetupPostProcessing();
 
         // Create the trail line renderer as a child object
         SetupTrail();
@@ -223,8 +229,12 @@ public class PlayerFeelController : MonoBehaviour
     private void OnEnable()
     {
         if (_playerHealth != null)
+        {
             _playerHealth.OnHealthChanged += OnPlayerHealthChanged;
+            Debug.Log("[PlayerFeel] Subscribed to OnHealthChanged.");
+        }
         Health.OnPlayerDeath += HandlePlayerDeath;
+        Debug.Log("[PlayerFeel] Subscribed to OnPlayerDeath static event.");
     }
 
     private void OnDisable()
@@ -652,11 +662,16 @@ public class PlayerFeelController : MonoBehaviour
             }
         }
 
-        // Hide the player after spawning the explosion
-        gameObject.SetActive(false);
+        // Hide only the visuals and disable physics instead of the whole GameObject
+        // so this coroutine can finish and show the Game Over screen.
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (var r in renderers) r.enabled = false;
+        
+        if (TryGetComponent<Collider>(out var col)) col.enabled = false;
+        if (TryGetComponent<Rigidbody>(out var rb)) rb.isKinematic = true;
 
         // Stop shake before freezing — ShakeRoutine uses Time.deltaTime which becomes 0
-        // at timeScale 0, so any active shake would loop forever without this
+// at timeScale 0, so any active shake would loop forever without this
         _moveCamera?.StopShake();
 
         // Freeze everything — enemies, spawners, bullets all stop
@@ -665,9 +680,6 @@ public class PlayerFeelController : MonoBehaviour
         // WaitForSecondsRealtime ignores timeScale so the delay still counts down
         yield return new WaitForSecondsRealtime(delay);
 
-        Time.timeScale = 1f;
-
-        // TODO: show game over screen here instead of reloading immediately
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        _gameOverUI?.Show();
     }
 }

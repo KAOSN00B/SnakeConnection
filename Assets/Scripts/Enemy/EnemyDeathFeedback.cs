@@ -18,8 +18,6 @@ public class EnemyDeathFeedback : MonoBehaviour
 
     private void OnDestroy()
     {
-        Debug.Log($"[EnemyDeathFeedback] OnDestroy fired on {gameObject.name} — scene loaded: {gameObject.scene.isLoaded} — clip: {_deathSound}");
-
         // Don't spawn particles during scene unload — OnDestroy fires for every
         // object when the scene reloads and we don't want stray particles
         if (!gameObject.scene.isLoaded) return;
