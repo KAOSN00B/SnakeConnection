@@ -91,6 +91,8 @@ public class ChainManager : MonoBehaviour
     public bool HasFollowers  => _followers.Count > 0;
     public int  FollowerCount => _followers.Count;
 
+    public IReadOnlyList<FollowerMovement> GetFollowersInOrder() => _followers;
+
 
     // Called by FollowerPickup when a new follower is collected
     public void AddFollower(FollowerMovement follower)

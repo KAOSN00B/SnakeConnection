@@ -86,9 +86,11 @@ public class KidnappedFollower : MonoBehaviour
         if (_followerAttack != null)
             _followerAttack.enabled = false;
 
-        // Switch to the KidnappedFollower physics layer
+        // Switch to the KidnappedFollower physics layer (if the layer exists in Project Settings)
         _originalLayer = gameObject.layer;
-        gameObject.layer = LayerMask.NameToLayer("KidnappedFollower");
+        int kidnappedLayer = LayerMask.NameToLayer("KidnappedFollower");
+        if (kidnappedLayer != -1)
+            gameObject.layer = kidnappedLayer;
 
         // Disable physics while kidnapped so the follower doesn't fall through the floor
         if (_rb != null)

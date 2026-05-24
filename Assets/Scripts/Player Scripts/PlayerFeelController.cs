@@ -122,21 +122,6 @@ public class PlayerFeelController : MonoBehaviour
     [Tooltip("Seconds for chromatic aberration to fade back to 0 after a near-miss triggers.")]
     [SerializeField] private float _nearMissFadeTime = 0.25f;
 
-    // ------------------------------------------------------------------
-    // Trail settings
-    // ------------------------------------------------------------------
-    [Header("Player Trail")]
-    [Tooltip("Width of the trail ribbon at the player end. Tapers to 0 at the tail end.")]
-    [SerializeField] private float _trailStartWidth = 0.35f;
-
-    [Tooltip("Number of world positions stored in the trail. More = longer, uses more memory.")]
-    [SerializeField] private int _trailLength = 25;
-
-    [Tooltip("Seconds between trail position samples. 0.03 is smooth without being expensive.")]
-    [SerializeField] private float _trailSampleRate = 0.03f;
-
-    [Tooltip("Color and alpha of the trail at the head (newest end). The tail fades to fully transparent.")]
-    [SerializeField] private Color _trailColor = new Color(0.3f, 0.85f, 1f, 0.55f);
 
     // ------------------------------------------------------------------
     // Panic vignette settings
@@ -176,12 +161,6 @@ public class PlayerFeelController : MonoBehaviour
     private Vector3 _prevFlatVelocity;  // Last frame's XZ velocity — used to detect direction changes
     private float   _currentTiltZ;      // Current Z-axis lean angle (smoothed)
 
-    // Trail state
-    private LineRenderer   _trail;
-    private Queue<Vector3> _trailQueue    = new Queue<Vector3>();
-    private Vector3[]      _trailBuffer;  // pre-allocated; CopyTo into this avoids ToArray() allocation
-    private float          _trailTimer;
-    private Gradient       _cachedGradient;
 
     // Post-processing state
     private ChromaticAberration _chromatic;
@@ -217,10 +196,7 @@ public class PlayerFeelController : MonoBehaviour
             _gameOverUI = FindAnyObjectByType<GameOverUI>(FindObjectsInactive.Include);
 
         // Try to connect post-processing (logs warnings if not found — non-fatal)
-SetupPostProcessing();
-
-        // Create the trail line renderer as a child object
-        SetupTrail();
+        SetupPostProcessing();
 
         // Start the camera delta at zero so it doesn't pop on the first frame
         _currentCamOffset = Vector3.zero;
@@ -250,7 +226,6 @@ SetupPostProcessing();
         UpdateCamera(survivalProgress);
         UpdateSpeedEscalation(survivalProgress);
         UpdateBodyTilt();       // Also calls CheckDirectionChangeSpike internally
-        UpdateTrail();
         UpdatePanicVignette();
         UpdateChromaticDecay();
     }

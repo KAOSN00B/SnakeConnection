@@ -7,8 +7,14 @@ using UnityEngine;
 public class PickupSpawner : MonoBehaviour
 {
     [Header("Pickup Types")]
-    [Tooltip("Drag any pickup prefabs here — follower pickups, power-ups, etc. One is chosen at random each spawn.")]
+    [Tooltip("Drag any pickup prefabs here — follower pickups, power-ups, etc. One is chosen per spawn.")]
     [SerializeField] private GameObject[] _pickupPrefabs;
+
+    [Tooltip("Relative spawn weight for each prefab (same order as above). " +
+             "Higher = more common. Values are ratios, not percentages — they don't need to add up to 100. " +
+             "Example: 70 / 45 / 30 makes index 0 most common and index 2 least. " +
+             "Leave empty to spawn all types with equal chance.")]
+    [SerializeField] private float[] _spawnWeights;
 
     [Header("Spawn Area")]
     // Keep these values in sync with EnemySpawner's _spawnHalfX / _spawnHalfZ
@@ -43,7 +49,7 @@ public class PickupSpawner : MonoBehaviour
     {
         if (_pickupPrefabs.Length == 0) return;
 
-        int randomPickupIndex = Random.Range(0, _pickupPrefabs.Length);
+        int randomPickupIndex = PickWeightedIndex();
         Vector3 spawnPos = GetSpawnPosition();
 
         if (_spawnWarningParticlePrefab != null)
@@ -60,6 +66,33 @@ public class PickupSpawner : MonoBehaviour
         yield return new WaitForSeconds(_spawnWarningDuration);
 
         Instantiate(_pickupPrefabs[pickupIndex], spawnPos, Quaternion.identity);
+    }
+
+    private int PickWeightedIndex()
+    {
+        // Fall back to uniform random if weights aren't set or don't match the prefab count
+        if (_spawnWeights == null || _spawnWeights.Length != _pickupPrefabs.Length)
+            return Random.Range(0, _pickupPrefabs.Length);
+
+        // Sum all weights to find the total range for the random roll
+        float total = 0f;
+        foreach (float w in _spawnWeights)
+            total += Mathf.Max(w, 0f);
+
+        if (total <= 0f)
+            return Random.Range(0, _pickupPrefabs.Length);
+
+        // Roll a number across the total, then walk the array until we find which bucket it lands in
+        float roll = Random.Range(0f, total);
+        float cumulative = 0f;
+        for (int i = 0; i < _spawnWeights.Length; i++)
+        {
+            cumulative += Mathf.Max(_spawnWeights[i], 0f);
+            if (roll < cumulative)
+                return i;
+        }
+
+        return _pickupPrefabs.Length - 1;
     }
 
     private Vector3 GetSpawnPosition()

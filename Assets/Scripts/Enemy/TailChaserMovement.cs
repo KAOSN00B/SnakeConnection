@@ -11,13 +11,23 @@ public class TailChaserMovement : MonoBehaviour
 
     [SerializeField] private float _targetRefreshInterval = 0.2f;
 
+    [Header("Separation")]
+    [Tooltip("Enemies within this radius push each other apart.")]
+    [SerializeField] private float _separationRadius = 1.5f;
+    [Tooltip("How strongly nearby enemies are pushed apart. 1–2 is subtle; 3+ is very spread out.")]
+    [SerializeField] private float _separationStrength = 1.5f;
+    [Tooltip("How quickly the enemy turns toward its desired direction. Lower = wider, smoother arc.")]
+    [SerializeField] private float _turnSpeed = 6f;
+
+    private static readonly Collider[] _separationBuffer = new Collider[16];
+    private Vector3 _smoothedMoveDir;
+
     private Transform _playerTransform;
     private Transform _target;
     private float _nextAttackTime;
     private Vector3 _directionToTarget;
     private float _targetRefreshTimer;
     private Rigidbody _rb;
-    private Quaternion _desiredRotation;
 
     private void OnEnable()  => EnemyRegistry.Register(transform);
     private void OnDisable() => EnemyRegistry.Unregister(transform);
@@ -28,13 +38,13 @@ public class TailChaserMovement : MonoBehaviour
         if (_rb == null)
             _rb = gameObject.AddComponent<Rigidbody>();
         _rb.isKinematic = true;
-        _desiredRotation = transform.rotation;
     }
 
     private void Start()
     {
         _playerTransform = FindPlayer();
         UpdateTarget();
+        _smoothedMoveDir = transform.forward;
     }
 
     private void Update()
@@ -59,8 +69,15 @@ public class TailChaserMovement : MonoBehaviour
     private void FixedUpdate()
     {
         if (_target == null) return;
-        _rb.MovePosition(transform.position + _directionToTarget * _speed * Time.fixedDeltaTime);
-        _rb.MoveRotation(_desiredRotation);
+
+        Vector3 desired = _directionToTarget + CalculateSeparation() * _separationStrength;
+        desired.y = 0f;
+        if (desired.sqrMagnitude < 0.01f) desired = _directionToTarget;
+        else desired = desired.normalized;
+
+        _smoothedMoveDir = Vector3.Slerp(_smoothedMoveDir, desired, Time.fixedDeltaTime * _turnSpeed);
+
+        transform.position += _smoothedMoveDir * _speed * Time.fixedDeltaTime;
     }
 
     private void UpdateTarget()
@@ -77,6 +94,24 @@ public class TailChaserMovement : MonoBehaviour
         _target = tail != null ? tail : player;
     }
 
+    private Vector3 CalculateSeparation()
+    {
+        Vector3 separation = Vector3.zero;
+        int count = Physics.OverlapSphereNonAlloc(transform.position, _separationRadius, _separationBuffer);
+        for (int i = 0; i < count; i++)
+        {
+            if (_separationBuffer[i].gameObject == gameObject) continue;
+            if (!_separationBuffer[i].CompareTag("Enemy")) continue;
+
+            Vector3 away = transform.position - _separationBuffer[i].transform.position;
+            away.y = 0f;
+            float dist = away.magnitude;
+            if (dist < 0.001f) continue;
+            separation += away.normalized / Mathf.Max(dist, 0.1f);
+        }
+        return separation;
+    }
+
     private Transform FindPlayer()
     {
         var move = Object.FindAnyObjectByType<PlayerMovement>();
@@ -88,7 +123,7 @@ public class TailChaserMovement : MonoBehaviour
     private void FaceTarget()
     {
         if (_directionToTarget != Vector3.zero)
-            _desiredRotation = Quaternion.LookRotation(_directionToTarget);
+            transform.rotation = Quaternion.LookRotation(_directionToTarget);
     }
 
     private void OnCollisionStay(Collision collision) => ProcessContact(collision.gameObject);

@@ -13,6 +13,17 @@ public class EnemyMovement : MonoBehaviour
 
     [SerializeField] private float _targetRefreshInterval = 0.2f;
 
+    [Header("Separation")]
+    [Tooltip("Enemies within this radius push each other apart.")]
+    [SerializeField] private float _separationRadius = 1.5f;
+    [Tooltip("How strongly nearby enemies are pushed apart. 1–2 is subtle; 3+ is very spread out.")]
+    [SerializeField] private float _separationStrength = 1.5f;
+    [Tooltip("How quickly the enemy turns toward its desired direction. Lower = wider, smoother arc; higher = snappier.")]
+    [SerializeField] private float _turnSpeed = 6f;
+
+    private static readonly Collider[] _separationBuffer = new Collider[16];
+    private Vector3 _smoothedMoveDir;
+
     private Transform _playerTransform;
     private Transform _target;
     private float _nextAttackTime;
@@ -35,6 +46,7 @@ public class EnemyMovement : MonoBehaviour
     {
         _playerTransform = FindPlayer();
         UpdateTarget();
+        _smoothedMoveDir = transform.forward;
         _animator = GetComponentInChildren<Animator>();
         if (_animator != null)
             _animator.speed = _speed / 2.5f;
@@ -59,9 +71,17 @@ public class EnemyMovement : MonoBehaviour
 
         if (flatDirection.sqrMagnitude < 0.01f) return;
 
-        Vector3 moveDirection = flatDirection.normalized;
-        _rb.MovePosition(transform.position + moveDirection * _speed * Time.fixedDeltaTime);
-        _rb.MoveRotation(Quaternion.LookRotation(moveDirection));
+        // Blend chase direction with separation, then smoothly rotate toward it so
+        // enemies curve around each other instead of snapping — prevents the visual bump
+        Vector3 desired = flatDirection.normalized + CalculateSeparation() * _separationStrength;
+        desired.y = 0f;
+        if (desired.sqrMagnitude < 0.01f) desired = flatDirection.normalized;
+        else desired = desired.normalized;
+
+        _smoothedMoveDir = Vector3.Slerp(_smoothedMoveDir, desired, Time.fixedDeltaTime * _turnSpeed);
+
+        transform.position += _smoothedMoveDir * _speed * Time.fixedDeltaTime;
+        transform.rotation  = Quaternion.LookRotation(_smoothedMoveDir);
     }
 
     private void UpdateTarget()
@@ -70,6 +90,25 @@ public class EnemyMovement : MonoBehaviour
             _target = ChainManager.Instance.GetNearestFollower(transform.position);
         else
             _target = _playerTransform != null ? _playerTransform : FindPlayer();
+    }
+
+    private Vector3 CalculateSeparation()
+    {
+        Vector3 separation = Vector3.zero;
+        int count = Physics.OverlapSphereNonAlloc(transform.position, _separationRadius, _separationBuffer);
+        for (int i = 0; i < count; i++)
+        {
+            if (_separationBuffer[i].gameObject == gameObject) continue;
+            if (!_separationBuffer[i].CompareTag("Enemy")) continue;
+
+            Vector3 away = transform.position - _separationBuffer[i].transform.position;
+            away.y = 0f;
+            float dist = away.magnitude;
+            if (dist < 0.001f) continue;
+            // Inverse distance: closer enemies exert a stronger push
+            separation += away.normalized / Mathf.Max(dist, 0.1f);
+        }
+        return separation;
     }
 
     private Transform FindPlayer()

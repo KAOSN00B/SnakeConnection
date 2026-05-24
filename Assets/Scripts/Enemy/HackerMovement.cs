@@ -62,7 +62,6 @@ public class HackerMovement : MonoBehaviour
     private float _targetRefreshTimer;
     private float _nextAttackTime;
     private Rigidbody _rb;
-    private Quaternion _desiredRotation;
 
     private void OnEnable()  => EnemyRegistry.Register(transform);
     private void OnDisable() => EnemyRegistry.Unregister(transform);
@@ -75,7 +74,6 @@ public class HackerMovement : MonoBehaviour
         if (_rb == null)
             _rb = transform.root.gameObject.AddComponent<Rigidbody>();
         _rb.isKinematic = true;
-        _desiredRotation = transform.root.rotation;
     }
 
     private void Update()
@@ -105,9 +103,7 @@ public class HackerMovement : MonoBehaviour
 
         float speed = _currentPhase == HackerPhase.Approach ? _approachSpeed : _fleeSpeed;
 
-        // MovePosition/MoveRotation tell PhysX the move is intentional — avoids contact pair rebuilds.
-        _rb.MovePosition(transform.root.position + _currentMoveDirection * speed * Time.fixedDeltaTime);
-        _rb.MoveRotation(_desiredRotation);
+        transform.root.position += _currentMoveDirection * speed * Time.fixedDeltaTime;
 
         // Only check for a grab during the approach — once fleeing the grab is already done
         if (_currentPhase == HackerPhase.Approach)
@@ -207,7 +203,7 @@ public class HackerMovement : MonoBehaviour
         if (direction.sqrMagnitude > 0.01f)
         {
             Quaternion targetRot = Quaternion.LookRotation(direction);
-            _desiredRotation = Quaternion.Slerp(transform.root.rotation, targetRot, Time.deltaTime * _rotationSpeed);
+            transform.root.rotation = Quaternion.Slerp(transform.root.rotation, targetRot, Time.deltaTime * _rotationSpeed);
         }
     }
 
