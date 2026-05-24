@@ -155,6 +155,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 6946223382081315052}
     m_Modifications:
     - target: {fileID: 51779519039727978, guid: 429af5bf711445a46b44d95663dbef2d, type: 3}
+      propertyPath: _fireRate
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 51779519039727978, guid: 429af5bf711445a46b44d95663dbef2d, type: 3}
       propertyPath: _bulletPrefab
       value: 
       objectReference: {fileID: 4642965890253812081, guid: c9b9c9a5eadd2fa41807465cfa37f8a7, type: 3}
@@ -315,6 +319,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdf3345cb926bf7499e100b06e75f0c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFeelController
+  _deathExplosionPrefab: {fileID: 0}
+  _deathDelay: 2
   _bodyTransform: {fileID: 5890379521983782257}
   _moveCamera: {fileID: 0}
   _postProcessVolume: {fileID: 0}

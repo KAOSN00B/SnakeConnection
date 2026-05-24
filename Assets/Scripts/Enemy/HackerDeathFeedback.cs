@@ -25,8 +25,19 @@ public class HackerDeathFeedback : MonoBehaviour
         // Don't do anything during scene unload — OnDestroy fires for every object on reload
         if (!gameObject.scene.isLoaded) return;
 
+        HackerMovement hackerMovement = GetComponent<HackerMovement>() ?? GetComponentInParent<HackerMovement>() ?? GetComponentInChildren<HackerMovement>();
+        if (hackerMovement != null)
+            ScoreManager.Instance?.AddScore(hackerMovement.ScoreWorth);
+        else
+        {
+            // Fallback to EnemyScoreValue
+            EnemyScoreValue scoreVal = GetComponent<EnemyScoreValue>() ?? GetComponentInParent<EnemyScoreValue>() ?? GetComponentInChildren<EnemyScoreValue>();
+            if (scoreVal != null)
+                ScoreManager.Instance?.AddScore(scoreVal.ScoreWorth);
+        }
+
         // Trigger the rescue if the hacker was still holding someone
-        if (_hacker != null && _hacker.KidnappedFollower != null)
+if (_hacker != null && _hacker.KidnappedFollower != null)
         {
             _hacker.KidnappedFollower.Rescue();
         }

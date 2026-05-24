@@ -18,6 +18,10 @@ public class FollowerMovement : MonoBehaviour
 
     [SerializeField] private float _snapThreshold = 0.5f;
     [SerializeField] private float _returnSpeed = 10f;
+    [Tooltip("Max speed when a follower is far behind — scales up with distance.")]
+    [SerializeField] private float _catchUpSpeed = 18f;
+    [Tooltip("Distance at which full catch-up speed kicks in.")]
+    [SerializeField] private float _catchUpDistance = 3f;
 
     // Cached once in Awake — avoids TryGetComponent every FixedUpdate
     private Animator _animator;
@@ -118,9 +122,13 @@ public class FollowerMovement : MonoBehaviour
         Vector3 horizontalTarget = new Vector3(targetPos.x, transform.position.y, targetPos.z);
         Vector3 positionBeforeMove = transform.position;
 
-        // If far from slot (e.g. just rescued), run back instead of teleporting
         if (horizontalDistance > _snapThreshold)
-            transform.position = Vector3.MoveTowards(transform.position, horizontalTarget, _returnSpeed * Time.fixedDeltaTime);
+        {
+            // Scale speed with distance — further behind = faster catch-up, capped at _catchUpSpeed
+            float catchUpFactor = Mathf.Clamp01(horizontalDistance / _catchUpDistance);
+            float speed = Mathf.Lerp(_returnSpeed, _catchUpSpeed, catchUpFactor);
+            transform.position = Vector3.MoveTowards(transform.position, horizontalTarget, speed * Time.fixedDeltaTime);
+        }
         else
             transform.position = horizontalTarget;
 

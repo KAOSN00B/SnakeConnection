@@ -161,6 +161,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FollowerPickup
   _followerPrefab: {fileID: 1457940386894297289, guid: a12642332720e304594c041c2a8dd473, type: 3}
+  _pickupSound: {fileID: 8300000, guid: d53c66b15b42cf04587998b4c1bff7c5, type: 3}
 --- !u!1001 &8116868249272913627
 PrefabInstance:
   m_ObjectHideFlags: 0

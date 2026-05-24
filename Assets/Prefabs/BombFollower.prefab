@@ -140,6 +140,8 @@ MonoBehaviour:
   _contactDamageCooldown: 1
   _snapThreshold: 0.5
   _returnSpeed: 10
+  _catchUpSpeed: 18
+  _catchUpDistance: 3
 --- !u!114 &5834209212977056511
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153,6 +155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   _maxHealth: 3
+  _deathSound: {fileID: 0}
 --- !u!114 &4508512622294439786
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,7 +170,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FollowerDeathFeedback
   _flashCount: 3
   _flashDuration: 0.5
-  _deathSound: {fileID: 0}
+  _deathSound: {fileID: 8300000, guid: d77cce735e6503142b4e2b08c351f3c8, type: 3}
   _explosionParticlePrefab: {fileID: 1056904543853562, guid: 4cf45cdce36e66e4a93614abb5ae7821, type: 3}
 --- !u!54 &-4722782574440217263
 Rigidbody:
@@ -343,6 +346,7 @@ MonoBehaviour:
   _arcLineMaterial: {fileID: 2100000, guid: 3a7b324f888e7694d9eab016992c2ec8, type: 2}
   _arcLineResolution: 24
   _arcLineDisplayDuration: 1
+  _throwSound: {fileID: 8300000, guid: 482858dbcde933a42bf734bb0f101d75, type: 3}
 --- !u!1 &7254849274372535369
 GameObject:
   m_ObjectHideFlags: 0

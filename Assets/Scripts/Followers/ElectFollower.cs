@@ -16,6 +16,9 @@ public class ElectFollower : MonoBehaviour
     [Tooltip("Seconds to wait before dropping another trap after one expired naturally.")]
     [SerializeField] private float _expiredCooldown = 5f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip _trapPlaceSound;
+
     private GameObject _activeTrap;
     private float _cooldownTimer;
 
@@ -36,6 +39,9 @@ public class ElectFollower : MonoBehaviour
     private void PlaceTrap()
     {
         if (_trapPrefab == null) return;
+
+        if (_trapPlaceSound != null)
+            AudioSource.PlayClipAtPoint(_trapPlaceSound, transform.position);
 
         _activeTrap = Instantiate(_trapPrefab, transform.position, Quaternion.identity);
 

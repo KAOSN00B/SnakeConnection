@@ -13,6 +13,9 @@ public class FolloweAttack : MonoBehaviour
     [SerializeField] private Transform _firePoint;
     [SerializeField] private GameObject _bulletPrefab;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip _shootSound;
+
     private Transform _enemyTarget;
     private float _fireCooldown;
     private float _targetRefreshTimer;
@@ -60,6 +63,9 @@ public class FolloweAttack : MonoBehaviour
     private void Shoot()
     {
         if (_bulletPrefab == null || _enemyTarget == null) return;
+
+        if (_shootSound != null)
+            AudioSource.PlayClipAtPoint(_shootSound, transform.position);
 
         Vector3 targetPos = _enemyTarget.position;
         if (_enemyTarget.TryGetComponent<Collider>(out var enemyCollider))

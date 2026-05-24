@@ -171,6 +171,8 @@ MonoBehaviour:
   _contactDamageCooldown: 1
   _snapThreshold: 0.5
   _returnSpeed: 10
+  _catchUpSpeed: 18
+  _catchUpDistance: 3
 --- !u!114 &9127421233775295562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -184,6 +186,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   _maxHealth: 3
+  _deathSound: {fileID: 0}
 --- !u!114 &272640350975469167
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -198,7 +201,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FollowerDeathFeedback
   _flashCount: 3
   _flashDuration: 0.5
-  _deathSound: {fileID: 0}
+  _deathSound: {fileID: 8300000, guid: d77cce735e6503142b4e2b08c351f3c8, type: 3}
   _explosionParticlePrefab: {fileID: 1056904543853562, guid: 4cf45cdce36e66e4a93614abb5ae7821, type: 3}
 --- !u!54 &4734399042050484296
 Rigidbody:
@@ -365,8 +368,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ElectFollower
   _trapPrefab: {fileID: 8635865729742945720, guid: eab49d2ac10c7684885fd138fd7cf598, type: 3}
-  _placementCooldown: 5
+  _detectionRadius: 20
   _postTriggerCooldown: 2
+  _expiredCooldown: 5
+  _trapPlaceSound: {fileID: 8300000, guid: 23f31df66add4bb4ebff35b95ebf265f, type: 3}
 --- !u!1001 &7405859401072994618
 PrefabInstance:
   m_ObjectHideFlags: 0

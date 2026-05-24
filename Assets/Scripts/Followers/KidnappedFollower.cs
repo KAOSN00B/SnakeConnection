@@ -16,6 +16,9 @@ public class KidnappedFollower : MonoBehaviour
     [Tooltip("X and Z offsets in world units beside/behind the hacker. Y is ignored — the follower keeps its own height.")]
     [SerializeField] private Vector3 _followOffset = new Vector3(0f, 0f, -1.5f);
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip _kidnappedSound;
+
     // Cached component references
     private HackerMovement _hackerMovement;
     private FollowerMovement _followerMovement;
@@ -111,6 +114,9 @@ public class KidnappedFollower : MonoBehaviour
         Vector3 worldFollowPosition = hackerRoot.position + (hackerRoot.rotation * new Vector3(_followOffset.x, 0f, _followOffset.z));
         worldFollowPosition.y = savedFollowerWorldY;
         transform.position = worldFollowPosition;
+
+        if (_kidnappedSound != null)
+            AudioSource.PlayClipAtPoint(_kidnappedSound, transform.position);
 
         _distressFlashCoroutine = StartCoroutine(DistressFlashRoutine());
         _countdownCoroutine     = StartCoroutine(EscapeCountdownRoutine());

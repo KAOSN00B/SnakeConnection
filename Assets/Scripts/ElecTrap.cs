@@ -34,9 +34,24 @@ public class ElecTrap : MonoBehaviour
     [Tooltip("Fallback destroy time for the particle if it has no ParticleSystem or uses a curve lifetime.")]
     [SerializeField] private float _fallbackParticleDestroyDelay = 5f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip _zapSound;
+
     private ElectFollower _owner;
     private bool _triggered;
     private Material _stunMaterial;
+
+    // Internal helper to track stun state per enemy
+    private class StunData
+    {
+        public Renderer[] Renderers;
+        public Material[][] OriginalMaterials;
+        public Material[][] YellowMaterials;
+        public MonoBehaviour Movement;
+        public Animator Animator;
+        public HitFlash[] HitFlashes;
+        public float OriginalAnimatorSpeed;
+    }
 
     public void Initialize(ElectFollower owner)
     {
@@ -86,60 +101,107 @@ public class ElecTrap : MonoBehaviour
     {
         _triggered = true;
 
+        if (_zapSound != null)
+            AudioSource.PlayClipAtPoint(_zapSound, transform.position);
+
         // Notify owner right away so the post-trigger cooldown starts
         _owner?.OnTrapDeactivated(wasTriggered: true);
+
+        // Disappear immediately visually and physically, like a bomb
+        if (TryGetComponent<Renderer>(out var r)) r.enabled = false;
+        if (TryGetComponent<Collider>(out var c)) c.enabled = false;
+        foreach (Transform child in transform) child.gameObject.SetActive(false);
 
         // Spawn electricity particle
         if (_electricityParticlePrefab != null)
         {
             GameObject fx = Instantiate(_electricityParticlePrefab, transform.position, Quaternion.identity);
+            
+            // Force play all particle systems in the prefab (including children)
+            foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>())
+            {
+                ps.Play(true);
+            }
+
             float destroyDelay = _fallbackParticleDestroyDelay;
-            ParticleSystem ps = fx.GetComponent<ParticleSystem>();
-            if (ps != null)
-                destroyDelay = ps.main.duration + ps.main.startLifetime.constantMax;
+            ParticleSystem mainPs = fx.GetComponent<ParticleSystem>();
+            if (mainPs != null)
+                destroyDelay = mainPs.main.duration + mainPs.main.startLifetime.constantMax;
             Destroy(fx, destroyDelay);
         }
 
         // Find all enemies in the wider damage radius
         Collider[] hits = Physics.OverlapSphere(transform.position, _damageRadius);
-
         HashSet<IDamageable> damaged = new HashSet<IDamageable>();
-        var stunTargets = new List<(Renderer[] renderers, Material[][] originalMaterials, Material[][] yellowMaterials, MonoBehaviour movement)>();
+        List<StunData> stunTargets = new List<StunData>();
 
         foreach (Collider hit in hits)
         {
             if (!hit.CompareTag("Enemy")) continue;
+
+            GameObject root = hit.transform.root.gameObject;
+            
+            // 1. Handle HitFlashes BEFORE damage to prevent white flashes
+            HitFlash[] hfs = root.GetComponentsInChildren<HitFlash>();
+            foreach (var hf in hfs)
+            {
+                // If HitFlash was already flashing, StopAllCoroutines() leaves it white.
+                // We MUST disable it so it doesn't fight our stun flash.
+                hf.StopAllCoroutines();
+                hf.enabled = false;
+            }
 
             // Damage — HashSet deduplicates enemies with multiple colliders
             IDamageable damageable = hit.GetComponentInParent<IDamageable>();
             if (damageable != null && damaged.Add(damageable))
                 damageable.TakeDamage(_damage);
 
-            // Find and disable movement component
-            GameObject root = hit.transform.root.gameObject;
+            // 2. Find and disable movement/attack component
             MonoBehaviour movement = (MonoBehaviour)root.GetComponentInChildren<EnemyMovement>()
                 ?? (MonoBehaviour)root.GetComponentInChildren<TailChaserMovement>()
                 ?? (MonoBehaviour)root.GetComponentInChildren<HackerMovement>();
 
-            if (movement == null || !movement.enabled) continue;
+            if (movement == null) continue; // Not an active enemy type we can stun
             movement.enabled = false;
 
-            // Pre-build both material arrays so we can toggle quickly during the flash loop
-            Renderer[] renderers = root.GetComponentsInChildren<Renderer>();
-            Material[][] originalMaterials = new Material[renderers.Length][];
-            Material[][] yellowMaterials   = new Material[renderers.Length][];
-            for (int i = 0; i < renderers.Length; i++)
+            // Pause animations
+            Animator anim = root.GetComponentInChildren<Animator>();
+            float oldSpeed = 1f;
+            if (anim != null)
             {
-                originalMaterials[i] = renderers[i].sharedMaterials;
-                yellowMaterials[i]   = new Material[originalMaterials[i].Length];
-                for (int j = 0; j < yellowMaterials[i].Length; j++)
-                    yellowMaterials[i][j] = _stunMaterial;
+                oldSpeed = anim.speed;
+                anim.speed = 0f;
             }
 
-            stunTargets.Add((renderers, originalMaterials, yellowMaterials, movement));
+            // Capture renderers and materials
+            Renderer[] enemyRenderers = root.GetComponentsInChildren<Renderer>();
+            Material[][] originalMats = new Material[enemyRenderers.Length][];
+            Material[][] yellowMats   = new Material[enemyRenderers.Length][];
+            
+            for (int i = 0; i < enemyRenderers.Length; i++)
+            {
+                // We use sharedMaterials to get the "true" base materials.
+                // Re-assigning them clears any existing instance materials (like the white one).
+                originalMats[i] = enemyRenderers[i].sharedMaterials;
+                enemyRenderers[i].sharedMaterials = originalMats[i]; 
+
+                yellowMats[i] = new Material[originalMats[i].Length];
+                for (int j = 0; j < yellowMats[i].Length; j++) 
+                    yellowMats[i][j] = _stunMaterial;
+            }
+
+            stunTargets.Add(new StunData {
+                Renderers = enemyRenderers,
+                OriginalMaterials = originalMats,
+                YellowMaterials = yellowMats,
+                Movement = movement,
+                Animator = anim,
+                HitFlashes = hfs,
+                OriginalAnimatorSpeed = oldSpeed
+            });
         }
 
-        // Flash enemies yellow for the stun duration
+        // Flash loop
         float elapsed = 0f;
         bool showingYellow = false;
         WaitForSeconds flashWait = new WaitForSeconds(_flashInterval);
@@ -147,28 +209,34 @@ public class ElecTrap : MonoBehaviour
         while (elapsed < _stunDuration)
         {
             showingYellow = !showingYellow;
-            foreach (var (renderers, originalMaterials, yellowMaterials, _) in stunTargets)
+            foreach (var target in stunTargets)
             {
-                for (int i = 0; i < renderers.Length; i++)
+                for (int i = 0; i < target.Renderers.Length; i++)
                 {
-                    if (renderers[i] != null)
-                        renderers[i].materials = showingYellow ? yellowMaterials[i] : originalMaterials[i];
+                    if (target.Renderers[i] == null) continue;
+                    target.Renderers[i].sharedMaterials = showingYellow ? target.YellowMaterials[i] : target.OriginalMaterials[i];
                 }
             }
             yield return flashWait;
             elapsed += _flashInterval;
         }
 
-        // Restore movement and original materials on all stunned enemies.
-        // Using .materials (not .sharedMaterials) so we override any white instances
-        // that HitFlash may have left behind — both end up at the same visual result.
-        foreach (var (renderers, originalMaterials, yellowMaterials, movement) in stunTargets)
+        // Restore everything
+        foreach (var target in stunTargets)
         {
-            if (movement != null) movement.enabled = true;
-            for (int i = 0; i < renderers.Length; i++)
+            if (target.Movement != null) target.Movement.enabled = true;
+            if (target.Animator != null) target.Animator.speed = target.OriginalAnimatorSpeed;
+
+            for (int i = 0; i < target.Renderers.Length; i++)
             {
-                if (renderers[i] != null)
-                    renderers[i].materials = originalMaterials[i];
+                if (target.Renderers[i] != null)
+                    target.Renderers[i].sharedMaterials = target.OriginalMaterials[i];
+            }
+
+            // Restore HitFlash last
+            foreach (var hf in target.HitFlashes)
+            {
+                if (hf != null) hf.enabled = true;
             }
         }
 
@@ -183,3 +251,5 @@ public class ElecTrap : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, _triggerRadius);
     }
 }
+
+

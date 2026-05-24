@@ -8,6 +8,8 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField] private float _speed = 7f;
     [SerializeField] private int _damage = 1;
     [SerializeField] private float _attackCooldown = 1f;
+    [SerializeField] private int _scoreWorth = 50;
+    public int ScoreWorth => _scoreWorth;
 
     [SerializeField] private float _targetRefreshInterval = 0.2f;
 

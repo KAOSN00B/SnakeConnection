@@ -38,6 +38,10 @@ public class HackerMovement : MonoBehaviour
     [Tooltip("Seconds between each tail target refresh. Lower = more responsive but more expensive.")]
     [SerializeField] private float _targetRefreshInterval = 0.2f;
 
+    [Header("Score")]
+    [SerializeField] private int _scoreWorth = 100;
+    public int ScoreWorth => _scoreWorth;
+
     [Header("Player Contact Damage")]
     [Tooltip("Damage dealt to the player on contact.")]
     [SerializeField] private int _contactDamage = 1;

@@ -37,6 +37,9 @@ public class BomberAttack : MonoBehaviour
     [Tooltip("How long the arc preview stays visible after a grenade is thrown.")]
     [SerializeField] private float _arcLineDisplayDuration = 1f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip _throwSound;
+
     private Transform _enemyTarget;
     private float _fireCooldown;
     private float _targetRefreshTimer;
@@ -105,6 +108,9 @@ public class BomberAttack : MonoBehaviour
     private void LaunchGrenade()
     {
         if (_grenadePrefab == null || _enemyTarget == null) return;
+
+        if (_throwSound != null)
+            AudioSource.PlayClipAtPoint(_throwSound, transform.position);
 
         Vector3 spawnPosition = _firePoint != null
             ? _firePoint.position

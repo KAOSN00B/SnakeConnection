@@ -137,6 +137,10 @@ MonoBehaviour:
   _rotationSpeed: 10
   _contactRadius: 0.6
   _contactDamageCooldown: 1
+  _snapThreshold: 0.5
+  _returnSpeed: 10
+  _catchUpSpeed: 18
+  _catchUpDistance: 3
 --- !u!114 &5834209212977056511
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -164,7 +168,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FollowerDeathFeedback
   _flashCount: 3
   _flashDuration: 0.5
-  _deathSound: {fileID: 0}
+  _deathSound: {fileID: 8300000, guid: d77cce735e6503142b4e2b08c351f3c8, type: 3}
   _explosionParticlePrefab: {fileID: 1056904543853562, guid: 4cf45cdce36e66e4a93614abb5ae7821, type: 3}
 --- !u!54 &-4722782574440217263
 Rigidbody:
@@ -227,6 +231,7 @@ MonoBehaviour:
   _targetRefreshInterval: 0.2
   _firePoint: {fileID: 926194416470187031}
   _bulletPrefab: {fileID: 4642965890253812081, guid: c9b9c9a5eadd2fa41807465cfa37f8a7, type: 3}
+  _shootSound: {fileID: 8300000, guid: 81ba758f1e0ceb546813d16a1e667b77, type: 3}
 --- !u!1 &7254849274372535369
 GameObject:
   m_ObjectHideFlags: 0
@@ -319,7 +324,26 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 1514048658777700, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1747686442546868, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1036585714848694, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1692831793585338, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1503251707352932, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1666180632743282, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1595062594556922, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1042660270797708, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1402899678239396, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1612795472636642, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1940679187637348, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1862571824904358, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1909134845174130, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1572160275463026, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1097469231885982, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1458164734381900, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1846997198979594, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1833998977252208, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
+    - {fileID: 1870482889341938, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1401195396439946, guid: 90292aae433301f4eb6dee5ffe961c01, type: 3}

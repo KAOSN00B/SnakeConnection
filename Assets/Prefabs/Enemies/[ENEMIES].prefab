@@ -122,6 +122,10 @@ PrefabInstance:
       propertyPath: _maxHealth
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 2869009793988537621, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
+      propertyPath: _deathSound
+      value: 
+      objectReference: {fileID: 8300000, guid: eadbabdbb9f288f43817e5d91edcb55e, type: 3}
     - target: {fileID: 3260102674357125799, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -166,6 +170,14 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 0.103
       objectReference: {fileID: 0}
+    - target: {fileID: 7351547998292022125, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
+      propertyPath: _deathSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 203db334798545d47a42b5d1c5951ec9, type: 3}
+    - target: {fileID: 7351547998292022125, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
+      propertyPath: _deathVolume
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 7455572023524628897, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
       propertyPath: _speed
       value: 7
@@ -184,35 +196,13 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4481220991750841454, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7046377262218397496}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4478123984093817738, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6626652063590340851}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
 --- !u!4 &5471096040930488739 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4481220991750841454, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
   m_PrefabInstance: {fileID: 8493017467119998413}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &5474191777243184711 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4478123984093817738, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}
-  m_PrefabInstance: {fileID: 8493017467119998413}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &6626652063590340851
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5474191777243184711}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b21e846c614577e4f89d11d87d7e59cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyDeathFeedback
-  _deathParticlePrefab: {fileID: 1277154925287174, guid: 3b517eddec185dd4a830743a742ad00b, type: 3}
-  _fallbackDestroyDelay: 2
 --- !u!4 &6405091185517107050 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3260102674357125799, guid: c75ec39e1bb4fbc4990870e23acc0438, type: 3}

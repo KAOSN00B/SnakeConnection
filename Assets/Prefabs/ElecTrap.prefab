@@ -103,11 +103,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 266d3c3d83511fe4a9b700677b62adc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ElecTrap
-  _triggerRadius: 4.75
-  _damageRadius: 4.75
+  _triggerRadius: 2.16
+  _damageRadius: 3.68
   _lifetime: 10
-  _damage: 0
-  _stunDuration: 4
+  _damage: 1
+  _stunDuration: 2.5
   _flashInterval: 0.1
   _electricityParticlePrefab: {fileID: 1319638081725528, guid: 2974555caa7a6704eb8f549d99367f35, type: 3}
   _fallbackParticleDestroyDelay: 4.02
+  _zapSound: {fileID: 8300000, guid: fb779bfd949acc54f9b142a3fd9fb68a, type: 3}

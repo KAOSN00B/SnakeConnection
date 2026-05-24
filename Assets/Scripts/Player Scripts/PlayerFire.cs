@@ -16,6 +16,9 @@ public class PlayerFire : MonoBehaviour
     [Tooltip("Right stick must exceed this magnitude to auto-fire. Match the value in PlayerMovement.")]
     [SerializeField] private float _controllerDeadzone = 0.2f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip _shootSound;
+
     private float _nextFireTime = 0f;
 
     void Update()
@@ -40,6 +43,9 @@ public class PlayerFire : MonoBehaviour
 
     private void Fire()
     {
+        if (_shootSound != null)
+            AudioSource.PlayClipAtPoint(_shootSound, transform.position);
+
         Vector3 spawnPos = _firePoint != null ? _firePoint.position : transform.position;
         Quaternion spawnRot = _firePoint != null ? _firePoint.rotation : transform.rotation;
         Vector3 fireDirection = GetFireDirection();

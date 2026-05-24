@@ -30,6 +30,9 @@ public class GrenadeProjectile : MonoBehaviour
     [Tooltip("Fallback destroy time for the explosion particle if it has no ParticleSystem component.")]
     [SerializeField] private float _explosionParticleDestroyDelay = 3f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip _explosionSound;
+
     private Vector3 _startPosition;
     private Vector3 _targetPosition;
     private float _elapsed;
@@ -79,6 +82,9 @@ public class GrenadeProjectile : MonoBehaviour
 
     private void Explode()
     {
+        if (_explosionSound != null)
+            AudioSource.PlayClipAtPoint(_explosionSound, transform.position);
+
         // HashSet prevents dealing damage twice to the same target if it has multiple colliders
         HashSet<IDamageable> alreadyDamaged = new HashSet<IDamageable>();
 

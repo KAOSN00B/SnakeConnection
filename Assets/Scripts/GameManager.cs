@@ -35,19 +35,26 @@ public class GameManager : MonoBehaviour
         int kidnappedFollower = LayerMask.NameToLayer(_kidnappedFollowerLayer);
 
         // Chain units don't push each other
-        Physics.IgnoreLayerCollision(player, follower, true);
-        Physics.IgnoreLayerCollision(follower, follower, true);
+        Ignore(player, follower);
+        Ignore(follower, follower);
 
         // Player bullets don't hit friendly units
-        Physics.IgnoreLayerCollision(playerBullet, player, true);
-        Physics.IgnoreLayerCollision(playerBullet, follower, true);
+        Ignore(playerBullet, player);
+        Ignore(playerBullet, follower);
 
         // Enemy bullets don't hit enemies
-        Physics.IgnoreLayerCollision(enemyBullet, enemy, true);
+        Ignore(enemyBullet, enemy);
 
         // Kidnapped followers are untouchable — no bullets or enemies can damage them while captured
-        Physics.IgnoreLayerCollision(playerBullet, kidnappedFollower, true);
-        Physics.IgnoreLayerCollision(enemyBullet,  kidnappedFollower, true);
-        Physics.IgnoreLayerCollision(enemy,        kidnappedFollower, true);
+        Ignore(playerBullet, kidnappedFollower);
+        Ignore(enemyBullet,  kidnappedFollower);
+        Ignore(enemy,        kidnappedFollower);
+    }
+
+    // Skips the call silently if either layer doesn't exist in the project yet
+    private void Ignore(int layerA, int layerB)
+    {
+        if (layerA == -1 || layerB == -1) return;
+        Physics.IgnoreLayerCollision(layerA, layerB, true);
     }
 }

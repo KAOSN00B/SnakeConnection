@@ -13,6 +13,10 @@ public class Health : MonoBehaviour, IDamageable
     public event System.Action<int, int> OnHealthChanged; // (currentHealth, maxHealth)
 
     [SerializeField] private int _maxHealth = 3;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip _deathSound;
+
     private int _currentHealth;
     private bool _isDead;
 
@@ -44,6 +48,8 @@ public class Health : MonoBehaviour, IDamageable
 
         if (gameObject.CompareTag("Player"))
         {
+            if (_deathSound != null)
+                AudioSource.PlayClipAtPoint(_deathSound, transform.position);
             OnPlayerDeath?.Invoke();
             return;
         }

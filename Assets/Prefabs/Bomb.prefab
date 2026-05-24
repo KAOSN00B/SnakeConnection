@@ -109,4 +109,5 @@ MonoBehaviour:
   _blastRadius: 4.4
   _damage: 3
   _explosionParticlePrefab: {fileID: 1879769179923522, guid: 65932b7368590234d8163da03c2055d8, type: 3}
-  _explosionParticleDestroyDelay: 3
+  _explosionParticleDestroyDelay: 0
+  _explosionSound: {fileID: 8300000, guid: c5a18c57470734e4986c53cbce0c7bd7, type: 3}
