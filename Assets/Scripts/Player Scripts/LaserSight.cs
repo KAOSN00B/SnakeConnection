@@ -24,16 +24,6 @@ public class LaserSight : MonoBehaviour
     private Vector3 _lastLaserDirection;
     private Vector3 _lastLaserStartPosition;
 
-    // ---- LASER DIAGNOSTICS: remove after profiling ----
-    // Logs raycast count vs total frame count every 2 seconds.
-    // If raycasts ≈ frames, the angle threshold isn't helping — lower it.
-    // If raycasts << frames, the throttle is working correctly.
-    private int   _diagRaycastCount;
-    private int   _diagFrameCount;
-    private float _diagElapsed;
-    private const float DiagnosticLogInterval = 2f;
-    // ---- END DIAGNOSTICS ----
-
     void Start()
     {
         _lineRenderer = GetComponent<LineRenderer>();
@@ -45,10 +35,10 @@ public class LaserSight : MonoBehaviour
 
         // Width and color are visual constants — set once here, not per-frame in UpdateLaser
         _lineRenderer.startWidth = _lineWidth;
-        _lineRenderer.endWidth = _lineWidth;
-        _lineRenderer.useWorldSpace = true;
+        _lineRenderer.endWidth   = _lineWidth;
+        _lineRenderer.useWorldSpace  = true;
         _lineRenderer.startColor = Color.white;
-        _lineRenderer.endColor = Color.white;
+        _lineRenderer.endColor   = Color.white;
         _lineRenderer.positionCount = 2;
     }
 
@@ -56,7 +46,6 @@ public class LaserSight : MonoBehaviour
     {
         if (_lineRenderer == null) return;
         UpdateLaser();
-        LogLaserDiagnostics();
     }
 
     private void UpdateLaser()
@@ -76,8 +65,6 @@ public class LaserSight : MonoBehaviour
         _lastLaserDirection     = aimDirection;
         _lastLaserStartPosition = startPosition;
 
-        _diagRaycastCount++;
-
         // Cast against all layers except _excludeLayers (typically the player's own collider)
         Vector3 endPosition = Physics.Raycast(startPosition, aimDirection, out RaycastHit raycastHit, _laserLength, ~_excludeLayers)
             ? raycastHit.point
@@ -85,22 +72,5 @@ public class LaserSight : MonoBehaviour
 
         _lineRenderer.SetPosition(0, startPosition);
         _lineRenderer.SetPosition(1, endPosition);
-    }
-
-    private void LogLaserDiagnostics()
-    {
-        _diagFrameCount++;
-        _diagElapsed += Time.deltaTime;
-
-        if (_diagElapsed < DiagnosticLogInterval) return;
-
-        Debug.Log(
-            $"[LaserDiag] Raycasts: {_diagRaycastCount} / {_diagFrameCount} frames over {_diagElapsed:F2}s " +
-            $"({100f * _diagRaycastCount / Mathf.Max(1, _diagFrameCount):F0}% of frames)"
-        );
-
-        _diagRaycastCount = 0;
-        _diagFrameCount   = 0;
-        _diagElapsed      = 0f;
     }
 }
