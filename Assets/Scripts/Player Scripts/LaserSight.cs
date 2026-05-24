@@ -12,29 +12,43 @@ public class LaserSight : MonoBehaviour
     [SerializeField] private Material _laserMaterial;
     [SerializeField] private LayerMask _excludeLayers;
 
+    [Header("Performance")]
+    [Tooltip("Minimum angle change in the fire point direction before the laser re-raycasts. " +
+             "Keeps the laser tracking the mouse on every frame it actually moves while skipping " +
+             "the raycast on frames where the aim is perfectly still. 0.1 is nearly invisible.")]
+    [SerializeField] private float _minimumFirePointAngleChange = 0.1f;
+
     private LineRenderer _lineRenderer;
+
+    // Cached state — compared each LateUpdate to decide whether to re-raycast
+    private Vector3 _lastLaserDirection;
+    private Vector3 _lastLaserStartPosition;
+
+    // ---- LASER DIAGNOSTICS: remove after profiling ----
+    // Logs raycast count vs total frame count every 2 seconds.
+    // If raycasts ≈ frames, the angle threshold isn't helping — lower it.
+    // If raycasts << frames, the throttle is working correctly.
+    private int   _diagRaycastCount;
+    private int   _diagFrameCount;
+    private float _diagElapsed;
+    private const float DiagnosticLogInterval = 2f;
+    // ---- END DIAGNOSTICS ----
 
     void Start()
     {
         _lineRenderer = GetComponent<LineRenderer>();
         if (_lineRenderer == null)
-        {
             _lineRenderer = gameObject.AddComponent<LineRenderer>();
-        }
 
         if (_laserMaterial != null)
-        {
             _lineRenderer.sharedMaterial = _laserMaterial;
-        }
 
+        // Width and color are visual constants — set once here, not per-frame in UpdateLaser
         _lineRenderer.startWidth = _lineWidth;
         _lineRenderer.endWidth = _lineWidth;
         _lineRenderer.useWorldSpace = true;
-        
-        // Using white so the material's color shows through
         _lineRenderer.startColor = Color.white;
         _lineRenderer.endColor = Color.white;
-
         _lineRenderer.positionCount = 2;
     }
 
@@ -42,23 +56,51 @@ public class LaserSight : MonoBehaviour
     {
         if (_lineRenderer == null) return;
         UpdateLaser();
+        LogLaserDiagnostics();
     }
 
     private void UpdateLaser()
     {
-        Vector3 startPos = _firePoint != null ? _firePoint.position : transform.position;
-        Vector3 direction = _firePoint != null ? _firePoint.forward : transform.forward;
+        Vector3 startPosition = _firePoint != null ? _firePoint.position : transform.position;
+        Vector3 aimDirection  = _firePoint != null ? _firePoint.forward  : transform.forward;
 
-        // Use a raycast that ignores specific layers (like the player itself)
-        Vector3 endPos = Physics.Raycast(startPos, direction, out RaycastHit raycastHit, _laserLength, ~_excludeLayers)
+        // Only raycast and update the LineRenderer when the fire point has actually moved or rotated.
+        // This way the laser tracks the mouse on every frame it moves (no timer lag),
+        // and skips the Physics.Raycast only on frames where aim is perfectly still.
+        float angleChange           = Vector3.Angle(_lastLaserDirection, aimDirection);
+        float startPositionChangeSq = (startPosition - _lastLaserStartPosition).sqrMagnitude;
+        bool  aimChangedEnough      = angleChange >= _minimumFirePointAngleChange || startPositionChangeSq > 0.0001f;
+
+        if (!aimChangedEnough) return;
+
+        _lastLaserDirection     = aimDirection;
+        _lastLaserStartPosition = startPosition;
+
+        _diagRaycastCount++;
+
+        // Cast against all layers except _excludeLayers (typically the player's own collider)
+        Vector3 endPosition = Physics.Raycast(startPosition, aimDirection, out RaycastHit raycastHit, _laserLength, ~_excludeLayers)
             ? raycastHit.point
-            : startPos + direction * _laserLength;
+            : startPosition + aimDirection * _laserLength;
 
-        _lineRenderer.SetPosition(0, startPos);
-        _lineRenderer.SetPosition(1, endPos);
+        _lineRenderer.SetPosition(0, startPosition);
+        _lineRenderer.SetPosition(1, endPosition);
+    }
 
-        // Update width in case it changed in inspector
-        _lineRenderer.startWidth = _lineWidth;
-        _lineRenderer.endWidth = _lineWidth;
+    private void LogLaserDiagnostics()
+    {
+        _diagFrameCount++;
+        _diagElapsed += Time.deltaTime;
+
+        if (_diagElapsed < DiagnosticLogInterval) return;
+
+        Debug.Log(
+            $"[LaserDiag] Raycasts: {_diagRaycastCount} / {_diagFrameCount} frames over {_diagElapsed:F2}s " +
+            $"({100f * _diagRaycastCount / Mathf.Max(1, _diagFrameCount):F0}% of frames)"
+        );
+
+        _diagRaycastCount = 0;
+        _diagFrameCount   = 0;
+        _diagElapsed      = 0f;
     }
 }

@@ -13,6 +13,14 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Right stick must exceed this magnitude before controller aiming activates.")]
     [SerializeField] private float _controllerDeadzone = 0.2f;
 
+    [Header("Animation Performance")]
+    [Tooltip("Smallest change in MoveX/MoveZ blend values before Animator.SetFloat is called. " +
+             "When mouse aim rotates the player, local movement direction changes every frame even if " +
+             "the player is moving in the same world direction — throttling avoids constant Animator churn.")]
+    [SerializeField] private float _animationParameterChangeThreshold = 0.02f;
+    [Tooltip("Smallest SpeedMultiplier change before Animator.speed is updated.")]
+    [SerializeField] private float _animatorSpeedChangeThreshold = 0.01f;
+
     // Set by PlayerFeelController each frame — 1.0 normally, ramps to 1.3 over 90 seconds,
     // briefly spikes higher on sharp direction changes
     public float SpeedMultiplier { get; set; } = 1f;
@@ -30,6 +38,31 @@ public class PlayerMovement : MonoBehaviour
     private Camera _mainCamera;
     private Animator _animator;
 
+    // Desired rotation calculated in Update, applied via MoveRotation in FixedUpdate.
+    // Setting transform.rotation directly on a non-kinematic Rigidbody is a physics teleport —
+    // PhysX rebuilds all contact pairs for the moved collider every physics step, causing
+    // cascading frame spikes when spinning fast. MoveRotation tells PhysX the rotation
+    // is intentional, so it handles contacts efficiently instead of rebuilding from scratch.
+    private Quaternion _desiredAimRotation;
+
+    // Last written animation values — used to skip SetFloat calls when values barely changed
+    private float _lastMoveX;
+    private float _lastMoveZ;
+    private float _lastAnimatorSpeed;
+
+    // ---- SPIN DIAGNOSTICS: remove after profiling ----
+    // Logs a summary every 2 seconds — no per-frame spam.
+    // Watch for: high max frame time during spinning, rotation writes much higher than frame count.
+    private int   _diagRotationWriteCount;
+    private float _diagMaxAngleChangePerFrame;
+    private float _diagMinFrameTime = float.MaxValue;
+    private float _diagMaxFrameTime;
+    private float _diagElapsed;
+    private Vector3 _diagPreviousAimDirection;
+    private bool  _diagHasPreviousAimDirection;
+    private const float DiagnosticLogInterval = 2f;
+    // ---- END DIAGNOSTICS ----
+
     private static readonly int MoveXHash = Animator.StringToHash("MoveX");
     private static readonly int MoveZHash = Animator.StringToHash("MoveZ");
 
@@ -38,6 +71,7 @@ public class PlayerMovement : MonoBehaviour
         _rb = GetComponent<Rigidbody>();
         _mainCamera = Camera.main;
         _animator = GetComponentInChildren<Animator>();
+        _desiredAimRotation = transform.rotation;
     }
 
     void Start()
@@ -52,26 +86,46 @@ public class PlayerMovement : MonoBehaviour
         // Input and aiming run every frame for responsiveness
         GatherInput();
         AimAtMouse();
-
         UpdateAnimation();
+        LogSpinDiagnostics();
     }
 
     private void UpdateAnimation()
     {
         if (_animator == null) return;
 
-        _animator.speed = SpeedMultiplier;
+        // Only push speed to the Animator when it changes — Animator.speed is not free
+        if (Mathf.Abs(SpeedMultiplier - _lastAnimatorSpeed) > _animatorSpeedChangeThreshold)
+        {
+            _animator.speed = SpeedMultiplier;
+            _lastAnimatorSpeed = SpeedMultiplier;
+        }
 
-        // Calculate movement relative to facing direction for strafing
+        // InverseTransformDirection recalculates local movement every frame.
+        // When mouse aim rotates the player, local direction changes even if the player is
+        // moving in the same world direction — skip SetFloat when the change is too small
+        // to visibly affect animation blending.
         Vector3 localMove = transform.InverseTransformDirection(_moveDirection);
-        _animator.SetFloat(MoveXHash, localMove.x);
-        _animator.SetFloat(MoveZHash, localMove.z);
+
+        if (Mathf.Abs(localMove.x - _lastMoveX) > _animationParameterChangeThreshold)
+        {
+            _animator.SetFloat(MoveXHash, localMove.x);
+            _lastMoveX = localMove.x;
+        }
+
+        if (Mathf.Abs(localMove.z - _lastMoveZ) > _animationParameterChangeThreshold)
+        {
+            _animator.SetFloat(MoveZHash, localMove.z);
+            _lastMoveZ = localMove.z;
+        }
     }
 
     void FixedUpdate()
     {
-        // Movement is applied in FixedUpdate because it touches the Rigidbody.
-        // Physics runs on a fixed timestep, so velocity changes here stay stable.
+        // Rotation applied here via MoveRotation — the correct physics channel.
+        // This lets PhysX anticipate the move and update contact pairs efficiently
+        // instead of treating it as a surprise teleport that forces a full contact rebuild.
+        _rb.MoveRotation(_desiredAimRotation);
         ApplyMovement();
     }
 
@@ -114,22 +168,70 @@ public class PlayerMovement : MonoBehaviour
         {
             // Right stick Y is inverted on most controllers — negate it so up = forward
             Vector3 aimDirection = new Vector3(rightX, 0f, -rightY).normalized;
-            transform.rotation = Quaternion.LookRotation(aimDirection);
+            StoreAimRotation(aimDirection);
             return;
         }
 
-        // Fall back to mouse aiming when no controller input
+        // Plane.Raycast is pure math — no physics cost.
         Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
         Plane groundPlane = new Plane(Vector3.up, transform.position);
 
         if (groundPlane.Raycast(ray, out float distance))
         {
             Vector3 targetPoint = ray.GetPoint(distance);
-            Vector3 lookDir = targetPoint - transform.position;
-            lookDir.y = 0f;
+            Vector3 lookDirection = targetPoint - transform.position;
+            lookDirection.y = 0f;
 
-            if (lookDir.sqrMagnitude > 0.01f)
-                transform.rotation = Quaternion.LookRotation(lookDir);
+            if (lookDirection.sqrMagnitude > 0.01f)
+                StoreAimRotation(lookDirection.normalized);
         }
+    }
+
+    // Stores the desired rotation for FixedUpdate to apply via MoveRotation.
+    // Also tracks diagnostic data — remove this method and call _desiredAimRotation directly
+    // once profiling is done.
+    private void StoreAimRotation(Vector3 aimDirection)
+    {
+        _desiredAimRotation = Quaternion.LookRotation(aimDirection);
+
+        _diagRotationWriteCount++;
+
+        if (_diagHasPreviousAimDirection)
+        {
+            float angleChange = Vector3.Angle(_diagPreviousAimDirection, aimDirection);
+            if (angleChange > _diagMaxAngleChangePerFrame)
+                _diagMaxAngleChangePerFrame = angleChange;
+        }
+
+        _diagPreviousAimDirection    = aimDirection;
+        _diagHasPreviousAimDirection = true;
+    }
+
+    // Logs a summary every DiagnosticLogInterval seconds.
+    // Key things to watch:
+    //   Rotation writes  — should be roughly equal to frame count (60 per second = ~120 per 2s).
+    //                       Much higher means something is calling WriteAimRotation extra times.
+    //   Max angle/frame  — large values (>10°) confirm fast spinning is the active scenario.
+    //   Max frame time   — spikes here during spinning point to a per-frame cost in this path.
+    //                       Compare spinning vs idle to isolate the cause.
+    private void LogSpinDiagnostics()
+    {
+        _diagMinFrameTime = Mathf.Min(_diagMinFrameTime, Time.deltaTime);
+        _diagMaxFrameTime = Mathf.Max(_diagMaxFrameTime, Time.deltaTime);
+        _diagElapsed += Time.deltaTime;
+
+        if (_diagElapsed < DiagnosticLogInterval) return;
+
+        Debug.Log(
+            $"[SpinDiag] Rotation writes: {_diagRotationWriteCount} over {_diagElapsed:F2}s | " +
+            $"Max spin/frame: {_diagMaxAngleChangePerFrame:F2}° | " +
+            $"Frame time — min: {_diagMinFrameTime * 1000f:F2}ms  max: {_diagMaxFrameTime * 1000f:F2}ms"
+        );
+
+        _diagRotationWriteCount      = 0;
+        _diagMaxAngleChangePerFrame  = 0f;
+        _diagElapsed                 = 0f;
+        _diagMinFrameTime            = float.MaxValue;
+        _diagMaxFrameTime            = 0f;
     }
 }

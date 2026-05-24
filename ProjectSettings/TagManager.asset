@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Enemy
   - Follower
+  - Ground
+  - MovingPlatform
   layers:
   - Default
   - TransparentFX
@@ -17,7 +19,7 @@ TagManager:
   - Follower
   - PlayerBullet
   - EnemyBullet
-  - 
+  - UI_Character
   - 
   - 
   - 

@@ -321,6 +321,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFeelController
   _deathExplosionPrefab: {fileID: 0}
   _deathDelay: 2
+  _gameOverUI: {fileID: 0}
   _bodyTransform: {fileID: 5890379521983782257}
   _moveCamera: {fileID: 0}
   _postProcessVolume: {fileID: 0}

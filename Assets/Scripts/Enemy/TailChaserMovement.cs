@@ -16,9 +16,20 @@ public class TailChaserMovement : MonoBehaviour
     private float _nextAttackTime;
     private Vector3 _directionToTarget;
     private float _targetRefreshTimer;
+    private Rigidbody _rb;
+    private Quaternion _desiredRotation;
 
     private void OnEnable()  => EnemyRegistry.Register(transform);
     private void OnDisable() => EnemyRegistry.Unregister(transform);
+
+    private void Awake()
+    {
+        _rb = GetComponent<Rigidbody>();
+        if (_rb == null)
+            _rb = gameObject.AddComponent<Rigidbody>();
+        _rb.isKinematic = true;
+        _desiredRotation = transform.rotation;
+    }
 
     private void Start()
     {
@@ -48,7 +59,8 @@ public class TailChaserMovement : MonoBehaviour
     private void FixedUpdate()
     {
         if (_target == null) return;
-        transform.position += _directionToTarget * _speed * Time.fixedDeltaTime;
+        _rb.MovePosition(transform.position + _directionToTarget * _speed * Time.fixedDeltaTime);
+        _rb.MoveRotation(_desiredRotation);
     }
 
     private void UpdateTarget()
@@ -76,7 +88,7 @@ public class TailChaserMovement : MonoBehaviour
     private void FaceTarget()
     {
         if (_directionToTarget != Vector3.zero)
-            transform.rotation = Quaternion.LookRotation(_directionToTarget);
+            _desiredRotation = Quaternion.LookRotation(_directionToTarget);
     }
 
     private void OnCollisionStay(Collision collision) => ProcessContact(collision.gameObject);

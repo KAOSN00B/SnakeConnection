@@ -28,6 +28,7 @@ public class FollowerMovement : MonoBehaviour
     private PlayerMovement _player;
     private Health _health;
     private float _nextContactTime;
+    private Rigidbody _rb;
 
     private static readonly int MoveXHash = Animator.StringToHash("MoveX");
     private static readonly int MoveZHash = Animator.StringToHash("MoveZ");
@@ -37,6 +38,10 @@ public class FollowerMovement : MonoBehaviour
         _animator = GetComponentInChildren<Animator>();
         _player = Object.FindAnyObjectByType<PlayerMovement>();
         _health = GetComponent<Health>();
+        _rb = GetComponent<Rigidbody>();
+        if (_rb == null)
+            _rb = gameObject.AddComponent<Rigidbody>();
+        _rb.isKinematic = true;
     }
 
     private void Start()
@@ -62,14 +67,15 @@ public class FollowerMovement : MonoBehaviour
         if (ChainManager.Instance == null) return;
 
         Vector3 lastPos = transform.position;
-        UpdatePosition();
-        UpdateAnimation(lastPos);
+        Vector3 newPos = ComputeNewPosition();
+        _rb.MovePosition(newPos);
+        FaceMovementDirection(newPos - lastPos);
+        UpdateAnimation(lastPos, newPos);
         CheckEnemyContact();
     }
 
-    // OverlapSphere is more reliable than OnTriggerStay here because enemies move via
-    // transform.position with no Rigidbody, making them static colliders that Unity's
-    // trigger system doesn't detect consistently against kinematic Rigidbodies.
+    // OverlapSphere is more reliable than OnTriggerStay here — kinematic-vs-kinematic
+    // colliders don't fire Unity trigger/collision events reliably.
     private void CheckEnemyContact()
     {
         if (_health == null || Time.time < _nextContactTime) return;
@@ -86,16 +92,15 @@ public class FollowerMovement : MonoBehaviour
         }
     }
 
-    private void UpdateAnimation(Vector3 lastPos)
+    // newPos is passed explicitly because MovePosition doesn't update transform.position synchronously
+    private void UpdateAnimation(Vector3 lastPos, Vector3 newPos)
     {
         if (_animator == null) return;
 
-        // Scale animator speed with player speed escalation
         float multiplier = (_player != null) ? _player.SpeedMultiplier : 1f;
         _animator.speed = multiplier;
 
-        // Calculate actual move direction this frame
-        Vector3 moveDelta = transform.position - lastPos;
+        Vector3 moveDelta = newPos - lastPos;
         if (moveDelta.sqrMagnitude > 0.0001f)
         {
             Vector3 moveDir = moveDelta.normalized;
@@ -110,7 +115,9 @@ public class FollowerMovement : MonoBehaviour
         }
     }
 
-    private void UpdatePosition()
+    // Returns the position followers should be at this physics step.
+    // Caller applies it via MovePosition so PhysX knows the move is intentional.
+    private Vector3 ComputeNewPosition()
     {
         Vector3 targetPos = ChainManager.Instance.GetHistoryPosition(_historyIndex);
 
@@ -120,21 +127,15 @@ public class FollowerMovement : MonoBehaviour
             transform.position.z - targetPos.z).magnitude;
 
         Vector3 horizontalTarget = new Vector3(targetPos.x, transform.position.y, targetPos.z);
-        Vector3 positionBeforeMove = transform.position;
 
         if (horizontalDistance > _snapThreshold)
         {
             // Scale speed with distance — further behind = faster catch-up, capped at _catchUpSpeed
             float catchUpFactor = Mathf.Clamp01(horizontalDistance / _catchUpDistance);
             float speed = Mathf.Lerp(_returnSpeed, _catchUpSpeed, catchUpFactor);
-            transform.position = Vector3.MoveTowards(transform.position, horizontalTarget, speed * Time.fixedDeltaTime);
+            return Vector3.MoveTowards(transform.position, horizontalTarget, speed * Time.fixedDeltaTime);
         }
-        else
-            transform.position = horizontalTarget;
-
-        // Rotate based on actual movement delta — using targetPos direction gives zero on snap,
-        // which locked followers to one facing direction
-        FaceMovementDirection(transform.position - positionBeforeMove);
+        return horizontalTarget;
     }
 
     private void FaceMovementDirection(Vector3 moveDelta)
@@ -143,7 +144,7 @@ public class FollowerMovement : MonoBehaviour
         if (moveDelta.sqrMagnitude > 0.0001f)
         {
             Quaternion targetRot = Quaternion.LookRotation(moveDelta);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.fixedDeltaTime * _rotationSpeed);
+            _rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRot, Time.fixedDeltaTime * _rotationSpeed));
         }
     }
 }

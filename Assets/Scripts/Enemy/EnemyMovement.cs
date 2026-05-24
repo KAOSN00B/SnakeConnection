@@ -18,9 +18,18 @@ public class EnemyMovement : MonoBehaviour
     private float _nextAttackTime;
     private float _targetRefreshTimer;
     private Animator _animator;
+    private Rigidbody _rb;
 
     private void OnEnable()  => EnemyRegistry.Register(transform);
     private void OnDisable() => EnemyRegistry.Unregister(transform);
+
+    private void Awake()
+    {
+        _rb = GetComponent<Rigidbody>();
+        if (_rb == null)
+            _rb = gameObject.AddComponent<Rigidbody>();
+        _rb.isKinematic = true;
+    }
 
     private void Start()
     {
@@ -28,9 +37,7 @@ public class EnemyMovement : MonoBehaviour
         UpdateTarget();
         _animator = GetComponentInChildren<Animator>();
         if (_animator != null)
-        {
             _animator.speed = _speed / 2.5f;
-        }
     }
 
     private void FixedUpdate()
@@ -53,8 +60,8 @@ public class EnemyMovement : MonoBehaviour
         if (flatDirection.sqrMagnitude < 0.01f) return;
 
         Vector3 moveDirection = flatDirection.normalized;
-        transform.position += moveDirection * _speed * Time.fixedDeltaTime;
-        transform.rotation = Quaternion.LookRotation(moveDirection);
+        _rb.MovePosition(transform.position + moveDirection * _speed * Time.fixedDeltaTime);
+        _rb.MoveRotation(Quaternion.LookRotation(moveDirection));
     }
 
     private void UpdateTarget()

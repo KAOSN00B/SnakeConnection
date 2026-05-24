@@ -229,12 +229,8 @@ SetupPostProcessing();
     private void OnEnable()
     {
         if (_playerHealth != null)
-        {
             _playerHealth.OnHealthChanged += OnPlayerHealthChanged;
-            Debug.Log("[PlayerFeel] Subscribed to OnHealthChanged.");
-        }
         Health.OnPlayerDeath += HandlePlayerDeath;
-        Debug.Log("[PlayerFeel] Subscribed to OnPlayerDeath static event.");
     }
 
     private void OnDisable()
