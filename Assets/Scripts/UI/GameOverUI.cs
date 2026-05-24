@@ -12,6 +12,7 @@ public class GameOverUI : MonoBehaviour
     {
         Time.timeScale = 0f;
         gameObject.SetActive(true);
+        MusicManager.Instance?.PlayGameOver();
 
         if (_finalScoreText != null && ScoreManager.Instance != null)
             _finalScoreText.text = $"Score: {ScoreManager.Instance.CurrentScore:N0}";

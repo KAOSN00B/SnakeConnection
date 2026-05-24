@@ -7,6 +7,7 @@ public class MusicManager : MonoBehaviour
     public static MusicManager Instance;
 
     [SerializeField] private AudioClip _musicClip;
+    [SerializeField] private AudioClip _gameOverClip;
     [SerializeField] [Range(0f, 1f)] private float _volume = 0.5f;
 
     private AudioSource _audioSource;
@@ -30,5 +31,14 @@ public class MusicManager : MonoBehaviour
 
         if (_musicClip != null)
             _audioSource.Play();
+    }
+
+    public void PlayGameOver()
+    {
+        if (_gameOverClip == null) return;
+        _audioSource.Stop();
+        _audioSource.clip = _gameOverClip;
+        _audioSource.loop = false;
+        _audioSource.Play();
     }
 }
